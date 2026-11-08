@@ -1,5 +1,5 @@
 <!-- aidlc template: story-index -->
-# NEW-jobwright · Jobwright version 1
+# NEW-jobwright · Jobwright: the new system and its foundations
 
 ```text
 SOURCE     docs/requirements/2026-11-08-jobwright-requirements.md (v1.0, 2026-11-08, product owner Prashant Sharma); provisional key until the tracker is chosen (requirements Q1)
@@ -9,8 +9,9 @@ LEVEL      workspace root
 CURRENT    none
 ```
 
-Scope: version 1, requirements sections 4 to 6, 8 and 9. The live dispatch board (section 7, FR-BOARD) is not part of
-this story: it is a later story the owner starts, and version 1 contains none of it.
+Scope: the new system and increment 1, Foundations (requirements section 4; product owner's answer I1 in
+`intent.md`). Increments 2, 3 and 4 are later stories. The live dispatch board (section 7, FR-BOARD) is not part of
+this story: it is a later story the owner starts, and nothing of it is built before.
 
 Each stage marks its own row when it ends: done, or `stopped: <reason>`. The build row reads doing while slices remain.
 Once the code owner approves, the person marks the merged row done in the pull request's final commit, so it reaches
@@ -20,7 +21,7 @@ Each step's pull request merges before the next starts.
 
 | Stage | Runs in | Status |
 |---|---|---|
-| aidlc-intent | workspace root | stopped: questions I1 to I4 in intent.md for the product owner |
+| aidlc-intent | workspace root | done |
 | aidlc-specify | workspace root | to do |
 | aidlc-design (decisions, `new-system.md`, coordination plan) | workspace root | to do |
 | create the repositories the design's LAYOUT names (a person) | workspace root | to do |
