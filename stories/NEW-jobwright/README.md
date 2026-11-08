@@ -6,7 +6,7 @@ SOURCE     docs/requirements/2026-11-08-jobwright-requirements.md (v1.0, 2026-11
 KIND       new system
 ROUTE      G
 LEVEL      workspace root
-CURRENT    none
+CURRENT    spec v1
 ```
 
 Scope: the new system and increment 1, Foundations (requirements section 4; product owner's answer I1 in
@@ -22,7 +22,7 @@ Each step's pull request merges before the next starts.
 | Stage | Runs in | Status |
 |---|---|---|
 | aidlc-intent | workspace root | done |
-| aidlc-specify | workspace root | to do |
+| aidlc-specify | workspace root | stopped: spec v1 awaits E27, assumptions A2 to A4 and the spec owner's approval |
 | aidlc-design (decisions, `new-system.md`, coordination plan) | workspace root | to do |
 | create the repositories the design's LAYOUT names (a person) | workspace root | to do |
 | aidlc-onboard (add the repositories to WORKSPACE.md and the deny rules) | workspace root | to do |
