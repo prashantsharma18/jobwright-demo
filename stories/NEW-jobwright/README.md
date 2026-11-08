@@ -20,7 +20,7 @@ Each step's pull request merges before the next starts.
 
 | Stage | Runs in | Status |
 |---|---|---|
-| aidlc-intent | workspace root | to do |
+| aidlc-intent | workspace root | stopped: questions I1 to I4 in intent.md for the product owner |
 | aidlc-specify | workspace root | to do |
 | aidlc-design (decisions, `new-system.md`, coordination plan) | workspace root | to do |
 | create the repositories the design's LAYOUT names (a person) | workspace root | to do |
