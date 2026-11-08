@@ -1,4 +1,40 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Edit(/stories/**)",
+      "Edit(/incidents/**)",
+      "Edit(/feedback/**)",
+      "Read(~/.claude/plugins/cache/aidlc/**)",
+      "Read(~/.claude/plugins/marketplaces/aidlc/**)"
+    ],
+    "deny": [
+      "Edit(/jobwright-app/**)",
+      "Edit(/jobwright-gitops/**)",
+      "Read(.env)",
+      "Read(.env.*)",
+      "Read(**/.env)",
+      "Read(**/.env.*)",
+      "Read(**/*.pem)",
+      "Read(**/*.key)",
+      "Read(secrets/**)",
+      "Read(~/.ssh/**)",
+      "Read(~/.aws/**)",
+      "Bash(git push*)"
+    ],
+    "disableBypassPermissionsMode": "disable"
+  },
+  "sandbox": {
+    "enabled": true,
+    "filesystem": {
+      "denyRead": [
+        ".env",
+        ".env.*",
+        "~/.ssh",
+        "~/.aws"
+      ]
+    }
+  },
   "enabledPlugins": {
     "aidlc@aidlc": true
   }
