@@ -25,7 +25,7 @@ Each step's pull request merges before the next starts.
 | aidlc-specify | workspace root | done (spec v1 approved by Prashant Sharma, 2026-11-08) |
 | aidlc-specify (amendment 1: GitHub for repositories, images and CI; `amendment-1.md`) | workspace root | done (spec v2 approved by Prashant Sharma, 2026-11-09, recorded at his instruction) |
 | aidlc-design (decisions, `new-system.md`, coordination plan) | workspace root | done (approved by Prashant Sharma, 2026-11-09) |
-| aidlc-specify (amendment 1, second part: spec v3) | workspace root | done (spec v3 approved by Prashant Sharma, 2026-11-09, recorded at his instruction; v3 security review not yet recorded) |
+| aidlc-specify (amendment 1, second part: spec v3) | workspace root | done (spec v3 approved by Prashant Sharma, 2026-11-09, recorded at his instruction; reviewed by him the same day) |
 | aidlc-design (amendment 1: `design-amendment-1.md`) | workspace root | done (approved by Prashant Sharma, 2026-11-09, recorded at his instruction) |
 | create the repositories the design's LAYOUT names (a person) | workspace root | done (Prashant Sharma, 2026-11-09: jobwright-app, jobwright-gitops) |
 | aidlc-onboard (add the repositories to WORKSPACE.md and the deny rules) | workspace root | done (2026-11-09; deny rules already in `.claude/settings.json`) |

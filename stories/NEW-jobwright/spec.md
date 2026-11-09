@@ -503,7 +503,7 @@ All by Prashant Sharma, 2026-11-08. Each is written into the rules and criteria 
 - [x] Tier 2+: non-goals written (done); every edge case decided (E1 to E31, E32 dropped, 2026-11-09); contract changes agreed
       with consumers (no other team; the cross-repository contract is defined in design); questions owned (done:
       every open question has an owner).
-- [ ] Tier 3: specialist reviewed: security, privacy and release reviewed for this spec by Prashant Sharma on
+- [x] Tier 3: specialist reviewed: security, privacy and release reviewed for this spec by Prashant Sharma on
       2026-11-08, under the known limit of intent answer I3 (the reviewer is also the product owner, tech lead and
       approver; no independent specialist reviewed it). Gap: that review was given before AC29 and E27 (the tenant
       command, which creates tenants and their first admins) were written; the reviewer confirms it covers them.
@@ -513,16 +513,16 @@ All by Prashant Sharma, 2026-11-08. Each is written into the rules and criteria 
       v2: the security, privacy and release changes of amendment 1 (credentials between the cluster and GitHub,
       secrets, gates) reviewed by Prashant Sharma on 2026-11-09, under the known limit of intent answer I3; that review
       also covers AC29 and E27 (the reviewer, 2026-11-09), which closes v1's gap above.
-      Gap (v3): P1 adds a stored deployment secret, and R6's token is now a known limit; the security review of v2
-      did not cover them. The reviewer records a v3 review.
+      v3: Prashant Sharma reviewed P1's stored staging token (fine-grained, `jobwright-gitops` only, `contents: write`,
+      a repository secret in `jobwright-app`) and R6's classic pull token, and accepted them as known limits KL4 and
+      KL5, on 2026-11-09, under the known limit of intent answer I3.
 
-Not ready (v3): the security review of v3's stored secret (P1) is to be recorded. Granting readiness and approving the
-spec are the spec owner's.
+Every item above is met, as checked on 2026-11-09. Granting readiness and approving the spec are the spec owner's.
 
 ## Approval record
 Spec v1 approved by Prashant Sharma on 2026-11-08. Reviewed by Prashant Sharma (security, privacy, release; known limit, intent answer I3).
 Spec v2 approved by Prashant Sharma on 2026-11-09 (recorded at his instruction in the design session). Reviewed by Prashant Sharma (security, privacy, release; known limit, intent answer I3).
-Spec v3 approved by Prashant Sharma on 2026-11-09 (recorded at his instruction). Reviewed by: not yet recorded for v3 (the security review of P1's staging token; Definition of Ready, Tier 3).
+Spec v3 approved by Prashant Sharma on 2026-11-09 (recorded at his instruction). Reviewed by Prashant Sharma on 2026-11-09 (security: P1's staging token and R6's pull token, accepted as KL4 and KL5; known limit, intent answer I3).
 Amendments: 2026-11-09 · rules (new: GitHub repositories, deploy key, pull secret, gates in GitHub Actions, who opens
 pull requests, CI tokens and their writes), AC23, AC27, E17, E23, E28 to E31 (E32 dropped), E30's fallback, known
 limits KL1 to KL3 · requirements 8, 9.2 and 9.4 changed to

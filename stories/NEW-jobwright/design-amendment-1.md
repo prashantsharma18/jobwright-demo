@@ -21,7 +21,7 @@ OUTCOME  D11 CI on GitHub Actions (adr-draft-11, supersedes 0005) · D12 deliver
          (adr-draft-12; none automatic, P2) — decisions P1, P2, P4, R6 and R7 taken 2026-11-09 (spec v3)
 UI REFERENCE  none: no new screen or flow
 RECORDED BY  Prashant Sharma, 2026-11-09
-APPROVED  ADRs 0011 to 0013 now Accepted (0005 and 0006 superseded; 0001, 0007, 0008 amended) · contracts Released versions v2 and Release ledger v2 and their tests · boundary rules in "Must-hold consequences" · approvers: Prashant Sharma (tech lead; provider and consumer of both contracts), 2026-11-09, recorded at his instruction · the v3 security review is not yet recorded (spec v3)
+APPROVED  ADRs 0011 to 0013 now Accepted (0005 and 0006 superseded; 0001, 0007, 0008 amended) · contracts Released versions v2 and Release ledger v2 and their tests · boundary rules in "Must-hold consequences" · approvers: Prashant Sharma (tech lead; provider and consumer of both contracts), 2026-11-09, recorded at his instruction · spec v3's security review recorded by Prashant Sharma, 2026-11-09
 ```
 
 ## Contracts (amendment step 1 and 2)
