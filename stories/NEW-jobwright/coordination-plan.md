@@ -1,0 +1,55 @@
+# Coordination plan · NEW-jobwright · Jobwright: the new system and its foundations · v1
+
+## For the reviewer
+- **Asked of:** The tech lead or architect, to approve the parts, their order and the contract versions with the design; each part's own code owners approve its pull request
+- **Record it:** On the work item with this plan's version and commit; each part in its own pull request
+- **Tier and main risk:** 3: parts that land out of order, so a release depends on a platform piece that is not there
+- **Changed since the last version:** first version
+
+```text
+OUTCOME    Increment 1 of Jobwright (spec v1, AC1 to AC29) on a new system of two repositories. Tier 3 (security,
+           tenant isolation, sign-in, release; spec v1)
+CONTRACTS  Jobwright API v1: none -> 1.0.0 (new; api/contract/openapi.yaml in jobwright-app; consumer: the web app, same repository)
+           Released versions (image digests by environment): none -> v1 (new; jobwright-app CI writes, jobwright-gitops reads; ADR 0006)
+           Release ledger: none -> v1 (new; written by the cluster, read by checks/promotion in jobwright-gitops; ADR 0006)
+PARTS      #  Repository        Owner            Change                               Flag  Waits for                  Undo                        Status
+           1  jobwright-app     Prashant Sharma  slice 0: skeleton, commands, CI      none  -                          revert the merge            waiting
+           2  jobwright-gitops  Prashant Sharma  slice 0: skeleton, guard, measures   none  -                          revert the merge            waiting
+           3  jobwright-app     Prashant Sharma  increment 1 criteria (app)           none  parts 1, 2                 revert slice; Rollouts abort  waiting
+           4  jobwright-gitops  Prashant Sharma  increment 1 criteria (platform)      none  part 2; part 3 first image  revert slice; Argo CD sync    waiting
+           (Part 3 proves AC1 to AC19, AC22, AC24 to AC27 and AC29; part 4 proves AC16, AC20 to AC24, AC27 and AC28.)
+           (Part 2's slice 0 also gives the owner the scripts that measure U1, U2, U7 and U9.)
+           (Status is derived: run the story status command named in WORKSPACE.md; it reads each part's index and writes `status.md` beside this plan.)
+TRACKING   Branch feat/NEW-jobwright-<part> in each repository (slice 0: feat/NEW-jobwright-slice-0); pull request title
+           "[NEW-jobwright] part <n> of 4: <what>". Parts 1 and 3 are both in jobwright-app, so its indexes are
+           plans/NEW-jobwright/part-1/README.md and part-3/README.md; likewise part-2 and part-4 in jobwright-gitops.
+           The story stays one tracker item: parts are tracked here, never as more issues.
+READ-ONLY  none (the workspace root reads both)
+OUTSIDE    Prashant Sharma, by hand, never an agent: create both repositories (index row); run bootstrap/ once
+           (k3d cluster, Gitea, registry, runner, local certificate authority, sealed-secrets key export); run
+           the tenant command (Apex, Brightline and the probe tenant); create the accounts aidlc-agent (with its
+           fork of jobwright-gitops), jobwright-bot, renovate-bot and jobwright-ledger, and the branch rules and
+           unprotected pattern of ADR 0005; turn on branch protection; run the measurements of U1, U2, U7 and U9
+           with the scripts part 2 provides.
+ORDER      Contract first: api/contract/openapi.yaml lands in part 3's first slice, with its failing tests, before any
+           API code. Parts 1 and 2 in any order; aidlc-onboard (confirm) in each repository after its slice 0.
+           Part 3 before part 4's release slices: part 4 deploys the images part 3 builds. Part 4's platform
+           slices (Traefik, Rollouts, Prometheus, Keycloak) may run alongside part 3.
+           Flags on: none. Feature flags are deferred (ADR 0007); a new system exposes nothing before its release.
+VERIFY     Provider and consumer contract tests in jobwright-app CI (ADR 0004); oasdiff against the last release tag
+           from the second release on; the staging release drill (AC21) with a healthy and a deliberately failing
+           version; checks/promotion with fixture pull requests (AC23); AC28's memory and port script.
+UNKNOWNS   U1 client address: owner Prashant Sharma, answer at the end of part 2, blocks AC16 (part 3 and 4 slices only)
+           U2 TraefikService routing and stickiness: owner Prashant Sharma, answer at the end of part 2, blocks AC20, AC21
+           U6 who opens and approves pull requests: owner Prashant Sharma, answer at design approval, blocks every merge
+           U7 ledger writer: owner Prashant Sharma, answer at the end of part 2, blocks AC23
+           U9 measured memory: owner Prashant Sharma, answer at the end of part 2, blocks part 4's platform slices
+           (U3, U4, U5, U8 are answered by documentation or the product owner before the slices that need them; design note)
+ROLLBACK   Part 1, 2: revert the merge; nothing is deployed. Part 3: each slice reverts alone; a released slice rolls
+           back by Rollouts abort, then the gitops commit is reverted; schema changes are expand-only, so the previous
+           version keeps working. Part 4: each slice reverts alone; Argo CD syncs the previous commit; the sealed-secrets
+           key and the ledger branch are never rewritten.
+APPROVALS  Each slice by its own code owners (Prashant Sharma, through the approval path U6 decides). Plan: Prashant
+           Sharma (tech lead). Specialist: security, privacy and release, Prashant Sharma (known limit, intent I3).
+           Nobody approves or merges in another team's repository on its behalf.
+```

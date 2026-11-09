@@ -1,0 +1,342 @@
+# Jobwright API contract, v1 (draft for NEW-jobwright, increment 1).
+# Owner: Prashant Sharma (provider: the API in jobwright-app; consumer: the web app's server, same repository).
+# Contract first: this file is the source. The API's own generated document must equal it (provider test
+# ContractDocumentTests); the web client is generated from it (consumer tests). A change is a new version via aidlc-design.
+openapi: 3.1.1
+info:
+  title: Jobwright API
+  version: 1.0.0-draft.1
+  description: >
+    The API is reachable only inside the cluster, called by the web app's server on behalf of a signed-in person
+    (ADR 0002). Every error is an RFC 9457 problem (application/problem+json), whatever the request accepts.
+    Another tenant's record and a record that does not exist get the same not-found problem.
+servers:
+  - url: http://api.jobwright.svc.cluster.local
+security:
+  - bearer: []
+tags:
+  - name: Me
+  - name: Tenant
+  - name: Members
+  - name: Platform
+paths:
+  /v1/me:
+    get:
+      tags: [Me]
+      operationId: getMe
+      summary: The signed-in person, their current tenant and role, and the tenants they can switch to.
+      responses:
+        '200':
+          description: The person and their current tenant.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Me' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/MembershipRevoked' }
+        default: { $ref: '#/components/responses/Problem' }
+  /v1/tenant/settings:
+    get:
+      tags: [Tenant]
+      operationId: getTenantSettings
+      summary: The current tenant's settings. Any role.
+      responses:
+        '200':
+          description: The current tenant's settings.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TenantSettings' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/MembershipRevoked' }
+        default: { $ref: '#/components/responses/Problem' }
+  /v1/members:
+    get:
+      tags: [Members]
+      operationId: listMembers
+      summary: The current tenant's members. Tenant admin only.
+      parameters:
+        - { $ref: '#/components/parameters/Search' }
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PageSize' }
+      responses:
+        '200':
+          description: One page of members, newest first.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MemberPage' }
+        '400': { $ref: '#/components/responses/Invalid' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        default: { $ref: '#/components/responses/Problem' }
+  /v1/members/{memberId}:
+    get:
+      tags: [Members]
+      operationId: getMember
+      summary: One member of the current tenant. Tenant admin only.
+      parameters:
+        - { $ref: '#/components/parameters/MemberId' }
+      responses:
+        '200':
+          description: The member.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Member' }
+        '400': { $ref: '#/components/responses/Invalid' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        default: { $ref: '#/components/responses/Problem' }
+  /v1/invitations:
+    get:
+      tags: [Members]
+      operationId: listInvitations
+      summary: The current tenant's open invitations. Tenant admin only.
+      parameters:
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PageSize' }
+      responses:
+        '200':
+          description: One page of open invitations, newest first.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/InvitationPage' }
+        '400': { $ref: '#/components/responses/Invalid' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        default: { $ref: '#/components/responses/Problem' }
+  /version:
+    get:
+      tags: [Platform]
+      operationId: getVersion
+      summary: The commit this part was built from (NFR-OPS-04). No authentication.
+      security: []
+      responses:
+        '200':
+          description: The build's version.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Version' }
+  /health/live:
+    get:
+      tags: [Platform]
+      operationId: getLive
+      summary: Alive (NFR-REL-04). No authentication, never rate limited, no dependency checks.
+      security: []
+      responses:
+        '200': { description: Alive. }
+  /health/ready:
+    get:
+      tags: [Platform]
+      operationId: getReady
+      summary: Ready for traffic (NFR-REL-04). Not ready while the database is unreachable.
+      security: []
+      responses:
+        '200': { description: Ready. }
+        '503':
+          description: Not ready.
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: >
+        An access token from Jobwright's identity provider, scoped to one organization (the current tenant),
+        sent only by the web app's server. The API validates issuer, audience, signature and expiry, then checks
+        the person's membership and role in its own records on every request (ADR 0002).
+  parameters:
+    MemberId:
+      name: memberId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+      description: Malformed, empty or over-long values are refused as invalid before any lookup (E20).
+    Search:
+      name: search
+      in: query
+      required: false
+      schema: { type: string, minLength: 1, maxLength: 100 }
+      description: Matches the start of a member's name or email, ignoring case.
+    Page:
+      name: page
+      in: query
+      required: false
+      schema: { type: integer, minimum: 1, maximum: 10000, default: 1 }
+    PageSize:
+      name: pageSize
+      in: query
+      required: false
+      schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+  responses:
+    Problem:
+      description: Any other error.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    Invalid:
+      description: A request field is invalid; each field is named.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/ValidationProblem' }
+          example:
+            type: https://jobwright.example/problems/invalid
+            title: The request is invalid.
+            status: 400
+            errors:
+              pageSize: [Must be between 1 and 100.]
+    Unauthenticated:
+      description: No valid token. The web app sends the person to sign in.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    MembershipRevoked:
+      description: >
+        The person no longer belongs to the token's tenant, or their role changed (E2). The web app ends the
+        session and sends the person to sign in.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+          example:
+            type: https://jobwright.example/problems/membership-revoked
+            title: Your access to this company has changed. Sign in again.
+            status: 403
+    Forbidden:
+      description: The role may not do this (AC6).
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+          example:
+            type: https://jobwright.example/problems/forbidden
+            title: You don't have access to this.
+            status: 403
+    NotFound:
+      description: >
+        No such record in the current tenant. A record of another tenant gets exactly this answer: same status,
+        same body apart from `instance` (AC4).
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+          example:
+            type: https://jobwright.example/problems/not-found
+            title: Not found.
+            status: 404
+  schemas:
+    Role:
+      type: string
+      enum: [DISPATCHER, TECHNICIAN, TENANT_ADMIN]
+    TenantRef:
+      type: object
+      additionalProperties: false
+      required: [id, name]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string, minLength: 1, maxLength: 120 }
+    Membership:
+      type: object
+      additionalProperties: false
+      required: [tenant, role]
+      properties:
+        tenant: { $ref: '#/components/schemas/TenantRef' }
+        role: { $ref: '#/components/schemas/Role' }
+    Me:
+      type: object
+      additionalProperties: false
+      required: [personId, name, currentTenant, role, memberships]
+      properties:
+        personId: { type: string, format: uuid }
+        name: { type: string, minLength: 1, maxLength: 200 }
+        currentTenant: { $ref: '#/components/schemas/TenantRef' }
+        role: { $ref: '#/components/schemas/Role' }
+        memberships:
+          type: array
+          description: Every tenant the person belongs to, for switching (E3). Includes the current one.
+          minItems: 1
+          items: { $ref: '#/components/schemas/Membership' }
+    TenantSettings:
+      type: object
+      additionalProperties: false
+      required: [name, timeZone]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 120 }
+        timeZone:
+          type: string
+          description: An IANA time zone name, for example Asia/Kolkata.
+          examples: [Asia/Kolkata]
+        customerPhone:
+          type: [string, 'null']
+          description: The phone number shown to customers (FR-ADM-03). Set in increment 2.
+    Member:
+      type: object
+      additionalProperties: false
+      required: [memberId, name, email, role, joinedAt]
+      properties:
+        memberId: { type: string, format: uuid }
+        name: { type: string }
+        email: { type: string, format: email }
+        role: { $ref: '#/components/schemas/Role' }
+        joinedAt: { type: string, format: date-time, description: UTC (NFR-DATA-02). }
+    Invitation:
+      type: object
+      additionalProperties: false
+      required: [invitationId, email, role, createdAt, expiresAt]
+      properties:
+        invitationId: { type: string, format: uuid }
+        email: { type: string, format: email }
+        role: { $ref: '#/components/schemas/Role' }
+        createdAt: { type: string, format: date-time }
+        expiresAt: { type: string, format: date-time }
+    Pagination:
+      type: object
+      additionalProperties: false
+      required: [page, pageSize, totalItems, totalPages]
+      properties:
+        page: { type: integer, minimum: 1 }
+        pageSize: { type: integer, minimum: 1, maximum: 100 }
+        totalItems: { type: integer, minimum: 0 }
+        totalPages: { type: integer, minimum: 0 }
+    MemberPage:
+      type: object
+      additionalProperties: false
+      required: [data, pagination]
+      properties:
+        data: { type: array, items: { $ref: '#/components/schemas/Member' } }
+        pagination: { $ref: '#/components/schemas/Pagination' }
+    InvitationPage:
+      type: object
+      additionalProperties: false
+      required: [data, pagination]
+      properties:
+        data: { type: array, items: { $ref: '#/components/schemas/Invitation' } }
+        pagination: { $ref: '#/components/schemas/Pagination' }
+    Version:
+      type: object
+      additionalProperties: false
+      required: [commit, part]
+      properties:
+        commit: { type: string, pattern: '^[0-9a-f]{40}$' }
+        part: { type: string, enum: [api, worker, web] }
+    Problem:
+      type: object
+      description: RFC 9457. Never holds a stack trace, SQL, a file path or a type name (AC13).
+      required: [type, title, status]
+      properties:
+        type: { type: string, format: uri }
+        title: { type: string }
+        status: { type: integer, minimum: 400, maximum: 599 }
+        detail: { type: string }
+        instance: { type: string }
+        traceId: { type: string, description: The trace to quote to support; an opaque id, nothing else. }
+    ValidationProblem:
+      allOf:
+        - $ref: '#/components/schemas/Problem'
+        - type: object
+          required: [errors]
+          properties:
+            errors:
+              type: object
+              description: Each invalid field, by its name, with what is wrong.
+              additionalProperties:
+                type: array
+                items: { type: string }
