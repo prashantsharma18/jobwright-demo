@@ -299,7 +299,7 @@ AC29 The owner creates a tenant and its first admin (S4) · `jobwright-app`
           only that tenant; a missing or invalid input is refused, naming the field, and nothing is created; run
           against any other cluster, it refuses as AC22 (a duplicate name: E27)
 
-Assumptions made (each for the spec owner to confirm):
+Assumptions made (A1 settled by S4 and S9; A2 to A4 confirmed by Prashant Sharma, 2026-11-08):
 - A1 Two tenants, Apex Facility Services and Brightline Services, with one user per role, are seeded with the tenant
   command (AC29) so this increment can be signed in to and isolation shown. The full demo data is increment 4
   (FR-DEMO). Settled by S4 and S9; the owner checks the names before the demo.
@@ -310,8 +310,8 @@ Assumptions made (each for the spec owner to confirm):
 - A4 Production exists from this increment, so that the release in AC20, AC21 and AC23 is a real one.
 
 ## Edge cases (each with a decided behaviour and its decider)
-E1 to E26 were decided by Prashant Sharma on 2026-11-08, accepted as proposed with no exceptions, each in the role it
-names. E27 is proposed and not yet decided.
+E1 to E27 were decided by Prashant Sharma on 2026-11-08, accepted as proposed with no exceptions, each in the role it
+names.
 
 E1 Session limits -> 60 minutes idle, 12 hours absolute, as the requirements proposed (decided by: Prashant
    Sharma, as risk owner)
@@ -374,8 +374,7 @@ E26 Personal data in this increment -> people's names and emails, and client add
    personal data and stay out of logs, traces and metrics now, ahead of FR-PRV in increment 3 (decided by:
    Prashant Sharma, as privacy reviewer)
 E27 The tenant command is run with a tenant name that already exists -> it is refused, naming the existing tenant,
-   and nothing changes (proposed, not decided: added with AC29 after decision S4; decided by: Prashant Sharma, as
-   spec owner)
+   and nothing changes (added with AC29 after decision S4; decided by: Prashant Sharma, as spec owner)
 
 ## Verification
 Test levels are proposed; `aidlc-plan` names each test.
@@ -413,27 +412,30 @@ All by Prashant Sharma, 2026-11-08. Each is written into the rules and criteria 
 | S12 | Memberships, tenant settings and one tenant-owned table prove isolation in this increment. |
 | S9 | The names "Apex Facility Services" and "Brightline Services" stay for now; the owner checks before the demo that they are not real businesses. |
 | Q-date | No event date is fixed; the schedule is open. |
+| E27 | Accepted as proposed. |
+| A2 to A4 | Confirmed as written. |
 
 ## Open questions
 | ID | Question | Owner | Blocks |
 |---|---|---|---|
 | S9 | Check that "Apex Facility Services" and "Brightline Services" are not real businesses. | Prashant Sharma | the demo, not this spec |
-| A2 to A4 | Confirm assumptions A2 (the pages AC12 covers), A3 (the worker exists from this increment) and A4 (production exists from this increment). A1 is settled by S4 and S9. | Prashant Sharma | AC12, AC17 to AC19, AC20, AC21, AC23 |
-| E27 | Decide E27 (a duplicate tenant name), added with AC29. | Prashant Sharma | AC29 |
 
 ## Definition of Ready (Tier 3)
 - [x] Clear actor, observable behaviour, known constraints, examples, testable criteria.
-- [ ] Tier 2+: non-goals written (done); every edge case decided (E1 to E26 decided on 2026-11-08; gap: E27, added
-      with AC29, is proposed); contract changes agreed with consumers (no other team; the cross-repository contract is
-      defined in design); questions owned (done: every open question has an owner).
-- [x] Tier 3: specialist reviewed: security, privacy and release reviewed for this spec by Prashant Sharma on
+- [x] Tier 2+: non-goals written (done); every edge case decided (E1 to E27, 2026-11-08); contract changes agreed
+      with consumers (no other team; the cross-repository contract is defined in design); questions owned (done:
+      every open question has an owner).
+- [ ] Tier 3: specialist reviewed: security, privacy and release reviewed for this spec by Prashant Sharma on
       2026-11-08, under the known limit of intent answer I3 (the reviewer is also the product owner, tech lead and
-      approver; no independent specialist reviewed it); every risk decision names its decider (done); data in the
-      agent's context classified (done: the requirements and this spec hold no personal data of real people; the
-      owner's name and a no-reply address only; seeded people are invented, S9).
+      approver; no independent specialist reviewed it). Gap: that review was given before AC29 and E27 (the tenant
+      command, which creates tenants and their first admins) were written; the reviewer confirms it covers them.
+      Every risk decision names its decider (done); data in the agent's context classified (done: the requirements
+      and this spec hold no personal data of real people; the owner's name and a no-reply address only; seeded
+      people are invented, S9).
 
-Not ready yet: E27 needs a decision, and assumptions A2 to A4 need confirming.
+Every other item above is met, as checked on 2026-11-08. Granting readiness and approving the spec are the spec
+owner's.
 
 ## Approval record
-Spec v1 approved by <spec owner> on <YYYY-MM-DD>. Reviewed by <specialist>.
+Spec v1 approved by Prashant Sharma on 2026-11-08. Reviewed by Prashant Sharma (security, privacy, release; known limit, intent answer I3).
 Amendments: none
