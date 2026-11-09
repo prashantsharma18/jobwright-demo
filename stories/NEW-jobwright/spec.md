@@ -1,13 +1,13 @@
 <!-- aidlc template: spec -->
 # NEW-jobwright · Jobwright: the new system and its foundations · specification
 
-Spec owner: Prashant Sharma · Tier: 3 · Version: v2
+Spec owner: Prashant Sharma · Tier: 3 · Version: v3
 
 ## For the reviewer
 - **Asked of:** The spec owner, to approve the criteria and decide every edge case; a specialist reviews at Tier 3 (here the same person: known limit, intent answer I3)
-- **Record it:** The tracker is files in this workspace, so on this file's pull request: "Spec v2 approved by Prashant Sharma"
+- **Record it:** The tracker is files in this workspace, so on this file's pull request: "Spec v3 approved by Prashant Sharma"
 - **Tier and main risk:** 3: one company seeing or changing another's data, or a weakness in signing people in or in releasing
-- **Changed since the last version:** v2, amendment 1 (2026-11-09, [amendment-1.md](amendment-1.md)): requirements 8, 9.2 and 9.4 move the repositories, images and CI to GitHub. New rules and known limits; AC23, AC27, E17 and E23 changed; E28 to E31 added, E32 dropped; the conflicts of E31 with AC23 and E30 resolved by the spec owner
+- **Changed since the last version:** v3, amendment 1, second part (2026-11-09, [design-amendment-1.md](design-amendment-1.md), decisions P1, P2, P4, R6, R7): one stored token commits staging's versions; no automatic image deletion; the promotion check requires one revision for all three images; Renovate off until GitHub Pro; known limits KL4 and KL5. Before that, v2, amendment 1 (2026-11-09, [amendment-1.md](amendment-1.md)): requirements 8, 9.2 and 9.4 move the repositories, images and CI to GitHub. New rules and known limits; AC23, AC27, E17 and E23 changed; E28 to E31 added, E32 dropped; the conflicts of E31 with AC23 and E30 resolved by the spec owner
 
 Sources: [intent v2](intent.md) and the
 [requirements v1.0](../../docs/requirements/2026-11-08-jobwright-requirements.md). Requirement IDs (FR-, NFR-) are
@@ -60,13 +60,17 @@ Non-goals (from intent "Not now"):
 - The section 8 gates run in GitHub Actions on every pull request and report pass or fail on it. Nothing blocks a
   merge on the current plan: known limit KL1 (set by Prashant Sharma, amendment 1, A1).
 - Prashant Sharma pushes branches and opens every pull request a person or an agent writes; named automation opens
-  Renovate's updates and the production promotion pull requests. Author and approver are the same person: known limit
-  KL2 (set by Prashant Sharma, amendment 1, A2).
-- CI stores no deployment secret. It uses only GitHub's built-in token: read-only on pull requests; on `main` of
-  `jobwright-app`, only the write needed to push images to GitHub's registry, and the delete of images older than 30
-  days (E30); on `main` of `jobwright-gitops`, a scheduled workflow's write to its own repository, to commit staging's
-  new image versions read from the registry. A stored secret is a new decision (set by Prashant Sharma, amendment 1,
-  E31, E30).
+  the production promotion pull requests. Author and approver are the same person: known limit KL2 (set by Prashant
+  Sharma, amendment 1, A2).
+- Renovate is off until the repositories move to GitHub Pro; until then Prashant Sharma updates dependencies himself.
+  This sets aside requirement 9.4's "Renovate for updates" for now (set by Prashant Sharma, product owner, R7).
+- CI stores exactly one deployment secret: a fine-grained token limited to the `jobwright-gitops` repository with
+  `contents: write` only, kept as a repository secret in `jobwright-app`; `jobwright-app`'s run on `main` uses it to
+  commit staging's versions after a merge. Everything else uses GitHub's built-in token: read-only on pull requests;
+  on `main` of `jobwright-app`, only the write needed to push images to GitHub's registry. Any further stored secret is
+  a new decision (set by Prashant Sharma, amendment 1, E31, P1).
+- No image is deleted automatically while GitHub's Container registry storage is free (set by Prashant Sharma, P2;
+  E30).
 - What each role may do is the permissions table of section 2; in this increment that means only Settings is
   restricted (to tenant admins) (set by Prashant Sharma, FR-IAM-03, FR-SHELL-01 AC3).
 - A user never sees, changes or learns about another tenant's data; asking for another tenant's record by its
@@ -278,11 +282,12 @@ AC23 Production changes only by review, to a known version (section 9.4; A4) · 
     Given a production promotion pull request, and the rollout record Prashant Sharma keeps in it: each completed or
           aborted rollout of staging and production since the last promotion, with its digest
     When  its checks run
-    Then  it fails, naming the version, when a digest is neither recorded as a completed staging rollout nor recorded
-          as a completed production rollout in an earlier promotion; it passes otherwise; a change merged to
-          `jobwright-app` updates staging with no person acting, after a delay of a few minutes set by the design's
-          schedule. (The records are the person's statement, not facts
-          from the cluster: known limit KL3. The check reports; on the current plan it does not block: KL1.)
+    Then  it passes only when the three production digests (web, API, worker) share one revision and are recorded
+          together as a completed staging rollout of that revision, or are together the production set of an earlier
+          promotion; otherwise it fails, naming the digests and their revisions (P4); a change merged to
+          `jobwright-app` updates staging with no person acting, right after that merge's run publishes its images
+          (P1). (The records are the person's statement, not facts from the cluster: known limit KL3. The check
+          reports; on the current plan it does not block: KL1.)
 
 AC24 Nothing secret, nothing unscanned, nothing as root (NFR-SEC-06, 07, 08) · `jobwright-app`, `jobwright-gitops`
     Given a change that adds a readable secret, a dependency or image with a fixable high or critical finding, or a
@@ -410,15 +415,13 @@ E29 The deploy key or the pull secret is revoked, expired or wrong -> Argo CD re
    and changes nothing; running pods keep running; new pods wait; a release stops and rolls back by its analysis
    (E13); the key is replaced with a new sealed secret, never typed into the cluster (decided by: Prashant Sharma, as
    risk owner, 2026-11-09)
-E30 The registry's storage limit is reached -> the image push fails and staging does not change; a retention job
-   deletes images older than 30 days that no environment and no rollout record names, and never one they name
-   (decided by: Prashant Sharma, as release owner, 2026-11-09). If the design finds that GitHub's built-in token
-   cannot delete them, the fallback applies: Prashant Sharma deletes old images by hand when storage runs low, and
-   this edge case is reworded
-E31 A workflow asks for a deployment secret -> there is none: CI stores no deployment secret, and uses only GitHub's
-   built-in token: read-only on pull requests; on `main`, only the writes the rule above lists (push images, delete
-   images older than 30 days, and `jobwright-gitops`'s scheduled commit of staging's versions); needing a stored
-   secret is a new decision (decided by: Prashant Sharma, as risk owner, 2026-11-09)
+E30 (v3) Registry storage -> no image is deleted automatically while GitHub's Container registry storage is free; if
+   GitHub announces billing, Prashant Sharma deletes by hand the images that no environment, no rollout record and no
+   `main` tag names; if a push fails because storage is full, staging does not change (decided by: Prashant Sharma, as
+   release owner, 2026-11-09, P2)
+E31 (v3) A workflow asks for a deployment secret -> the only one is the staging token of the rule above, used only by
+   `jobwright-app`'s run on `main` to commit staging's versions; any other is a new decision. Pull-request runs use the
+   built-in token, read-only (decided by: Prashant Sharma, as risk owner, 2026-11-09, P1)
 E32 Dropped (Prashant Sharma, 2026-11-09): under A2 there is no `aidlc-agent` account. The number is not reused.
 
 Known limits (amendment 1, accepted by Prashant Sharma, 2026-11-09):
@@ -428,6 +431,11 @@ Known limits (amendment 1, accepted by Prashant Sharma, 2026-11-09):
   author cannot approve his own. As intent I3.
 - KL3 (A4): the rollout records AC23 checks are written by Prashant Sharma in each promotion pull request; the cluster
   writes nothing to GitHub.
+- KL4 (P1): the staging token is a repository secret, so any workflow in `jobwright-app` could read it, on any branch
+  (only Prashant Sharma pushes there, A2); and it can write production's versions in `jobwright-gitops` too, since on
+  Free nothing stops it.
+- KL5 (R6, for the lab): the cluster's image pull secret is a classic token with `read:packages`, which reaches every
+  package the account can read; it is the narrowest GitHub offers for packages.
 
 ## Verification
 Test levels are proposed; `aidlc-plan` names each test.
@@ -478,6 +486,11 @@ All by Prashant Sharma, 2026-11-08. Each is written into the rules and criteria 
 | E31 against E30 | (a): the retention job may delete images older than 30 days, on `main` only; if the built-in token cannot, fallback (b): Prashant Sharma deletes old images by hand when storage runs low, and E30 is reworded |
 | Tier 3 review of AC29 and E27 | Covered by Prashant Sharma's v2 review, 2026-11-09 |
 | E32 | Dropped: no `aidlc-agent` under A2 |
+| P1 | One stored fine-grained token, `jobwright-gitops` only, `contents: write` only, a repository secret in `jobwright-app`; it commits staging's versions after a merge; limits accepted (KL4); a new decision under E31 |
+| P2 | No automatic deletion while the registry is free; deleted by hand if billing starts; E30 reworded |
+| P4 | The promotion check requires one revision for all three images, completed together in staging |
+| R6 | Accepted for the lab (KL5) |
+| R7 | Renovate off until GitHub Pro; dependencies updated by hand |
 | Tier 3 review of v2 | Security, privacy and release changes of amendment 1 reviewed by Prashant Sharma, 2026-11-09, under known limit I3 |
 
 ## Open questions
@@ -490,7 +503,7 @@ All by Prashant Sharma, 2026-11-08. Each is written into the rules and criteria 
 - [x] Tier 2+: non-goals written (done); every edge case decided (E1 to E31, E32 dropped, 2026-11-09); contract changes agreed
       with consumers (no other team; the cross-repository contract is defined in design); questions owned (done:
       every open question has an owner).
-- [x] Tier 3: specialist reviewed: security, privacy and release reviewed for this spec by Prashant Sharma on
+- [ ] Tier 3: specialist reviewed: security, privacy and release reviewed for this spec by Prashant Sharma on
       2026-11-08, under the known limit of intent answer I3 (the reviewer is also the product owner, tech lead and
       approver; no independent specialist reviewed it). Gap: that review was given before AC29 and E27 (the tenant
       command, which creates tenants and their first admins) were written; the reviewer confirms it covers them.
@@ -500,13 +513,21 @@ All by Prashant Sharma, 2026-11-08. Each is written into the rules and criteria 
       v2: the security, privacy and release changes of amendment 1 (credentials between the cluster and GitHub,
       secrets, gates) reviewed by Prashant Sharma on 2026-11-09, under the known limit of intent answer I3; that review
       also covers AC29 and E27 (the reviewer, 2026-11-09), which closes v1's gap above.
+      Gap (v3): P1 adds a stored deployment secret, and R6's token is now a known limit; the security review of v2
+      did not cover them. The reviewer records a v3 review.
 
-Every item above is met, as checked on 2026-11-09.
+Not ready (v3): the security review of v3's stored secret (P1) is to be recorded. Granting readiness and approving the
+spec are the spec owner's.
 
 ## Approval record
 Spec v1 approved by Prashant Sharma on 2026-11-08. Reviewed by Prashant Sharma (security, privacy, release; known limit, intent answer I3).
 Spec v2 approved by Prashant Sharma on 2026-11-09 (recorded at his instruction in the design session). Reviewed by Prashant Sharma (security, privacy, release; known limit, intent answer I3).
+Spec v3 approved by Prashant Sharma on 2026-11-09 (recorded at his instruction). Reviewed by: not yet recorded for v3 (the security review of P1's staging token; Definition of Ready, Tier 3).
 Amendments: 2026-11-09 · rules (new: GitHub repositories, deploy key, pull secret, gates in GitHub Actions, who opens
 pull requests, CI tokens and their writes), AC23, AC27, E17, E23, E28 to E31 (E32 dropped), E30's fallback, known
 limits KL1 to KL3 · requirements 8, 9.2 and 9.4 changed to
 GitHub ([amendment-1.md](amendment-1.md)) · decided by Prashant Sharma (product owner, spec owner, risk owner)
+Amendments: 2026-11-09 (v3) · rules (the staging token; Renovate off, setting aside requirement 9.4's Renovate for now;
+no automatic image deletion), AC23 (one revision for all three images; staging right after publish), E30, E31, known
+limits KL4 and KL5 · found by the design amendment's challenge (C14, C16, C17, C21) ·
+[design-amendment-1.md](design-amendment-1.md) · decided by Prashant Sharma (product owner, spec owner, risk owner)
