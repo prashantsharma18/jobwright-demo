@@ -24,7 +24,7 @@ Each step's pull request merges before the next starts.
 | aidlc-intent | workspace root | done |
 | aidlc-specify | workspace root | done (spec v1 approved by Prashant Sharma, 2026-11-08) |
 | aidlc-design (decisions, `new-system.md`, coordination plan) | workspace root | done (approved by Prashant Sharma, 2026-11-09) |
-| create the repositories the design's LAYOUT names (a person) | workspace root | to do |
+| create the repositories the design's LAYOUT names (a person) | workspace root | done (Prashant Sharma, 2026-11-09: jobwright-app, jobwright-gitops) |
 | aidlc-onboard (add the repositories to WORKSPACE.md and the deny rules) | workspace root | done (2026-11-09; deny rules already in `.claude/settings.json`) |
 | aidlc-onboard (prepare) | jobwright-app | to do |
 | slice 0 | jobwright-app | to do |
