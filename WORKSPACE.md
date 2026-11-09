@@ -9,8 +9,8 @@ deliver it together: the application, and what runs where. What it must do is in
 ## Repositories
 | Repository | Owner | What it is | Rules file |
 |---|---|---|---|
-| jobwright-app (not yet created) | Prashant Sharma | Web (Next.js), API and worker (.NET), Helm charts, decisions | AGENTS.md |
-| jobwright-gitops (not yet created) | Prashant Sharma | What runs where: the Argo CD state for staging and production | AGENTS.md |
+| jobwright-app | Prashant Sharma | Web (Next.js), API and worker (.NET), Helm charts, decisions | AGENTS.md |
+| jobwright-gitops | Prashant Sharma | What runs where: the Argo CD state for staging and production | AGENTS.md |
 
 ## How work runs here
 - Start every piece of work with `aidlc-start` here, at the workspace root: a new requirement, a story, a defect, a
