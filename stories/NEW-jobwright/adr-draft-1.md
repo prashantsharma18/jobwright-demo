@@ -6,7 +6,7 @@
 - **Tier and main risk:** 3: modules that reach into each other's data, which makes isolation and later change unsafe
 - **Changed since the last version:** first version
 
-Status: Accepted at design approval (approved by Prashant Sharma, decider, 2026-11-09)
+Status: Accepted at design approval (approved by Prashant Sharma, decider, 2026-11-09) · Amended by 0013 (2026-11-09)
 Decider: Prashant Sharma (tech lead) · Agreed: Prashant Sharma (owner of both repositories) · Work item: NEW-jobwright · Tier: 3
 Governs: `jobwright-app` (`docs/adr/`), with the layout of `jobwright-gitops` recorded here.
 

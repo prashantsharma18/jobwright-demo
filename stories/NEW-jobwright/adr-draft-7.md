@@ -6,7 +6,7 @@
 - **Tier and main risk:** 3: the machine running out of memory, which takes the product and the lab down together
 - **Changed since the last version:** first version
 
-Status: Accepted at design approval (approved by Prashant Sharma, decider, 2026-11-09)
+Status: Accepted at design approval (approved by Prashant Sharma, decider, 2026-11-09) · Amended by 0013 (2026-11-09)
 Decider: Prashant Sharma (tech lead, and owner of the machine) · Agreed: Prashant Sharma · Work item: NEW-jobwright · Tier: 3
 
 ## Context

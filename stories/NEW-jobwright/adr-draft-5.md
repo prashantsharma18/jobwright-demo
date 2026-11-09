@@ -6,7 +6,7 @@
 - **Tier and main risk:** 3: a pre-merge job that can change the cluster or staging, or gates that are not enforced
 - **Changed since the last version:** first version
 
-Status: Accepted at design approval (approved by Prashant Sharma, decider, 2026-11-09)
+Status: Superseded by 0011 (accepted 2026-11-09; superseded 2026-11-09, design amendment 1)
 Decider: Prashant Sharma (tech lead, and risk owner for the accepted risks below) · Agreed: Prashant Sharma · Work item: NEW-jobwright · Tier: 3
 
 ## Context

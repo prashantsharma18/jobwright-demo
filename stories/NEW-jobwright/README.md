@@ -6,7 +6,7 @@ SOURCE     docs/requirements/2026-11-08-jobwright-requirements.md (v1.0, 2026-11
 KIND       new system
 ROUTE      G
 LEVEL      workspace root
-CURRENT    spec v3 · contract jobwright-api v1 · contract released-versions v1 · contract release-ledger v1
+CURRENT    spec v3 · contract jobwright-api v1 · contract released-versions v2 · contract release-ledger v2
 ```
 
 Scope: the new system and increment 1, Foundations (requirements section 4; product owner's answer I1 in
@@ -26,6 +26,7 @@ Each step's pull request merges before the next starts.
 | aidlc-specify (amendment 1: GitHub for repositories, images and CI; `amendment-1.md`) | workspace root | done (spec v2 approved by Prashant Sharma, 2026-11-09, recorded at his instruction) |
 | aidlc-design (decisions, `new-system.md`, coordination plan) | workspace root | done (approved by Prashant Sharma, 2026-11-09) |
 | aidlc-specify (amendment 1, second part: spec v3) | workspace root | done (spec v3 approved by Prashant Sharma, 2026-11-09, recorded at his instruction; v3 security review not yet recorded) |
+| aidlc-design (amendment 1: `design-amendment-1.md`) | workspace root | done (approved by Prashant Sharma, 2026-11-09, recorded at his instruction) |
 | create the repositories the design's LAYOUT names (a person) | workspace root | done (Prashant Sharma, 2026-11-09: jobwright-app, jobwright-gitops) |
 | aidlc-onboard (add the repositories to WORKSPACE.md and the deny rules) | workspace root | done (2026-11-09; deny rules already in `.claude/settings.json`) |
 | aidlc-onboard (prepare) | jobwright-app | to do |

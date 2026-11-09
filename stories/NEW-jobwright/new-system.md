@@ -5,7 +5,7 @@
 - **Asked of:** The tech lead or architect, to approve the stack, every dependency and the scaffold commands
 - **Record it:** On the APPROVED line below, and on the work item with this file's version and commit
 - **Tier and main risk:** 3: a dependency or platform piece that does not behave as the design assumes (U1, U2, U7), or memory over 6 GB (U9)
-- **Changed since the last version:** first version
+- **Changed since the last version:** v2 (2026-11-09, design amendment 1, spec v3): GitHub instead of Gitea, its runner, Docker-in-Docker and the local registry (ADR 0011, 0012, 0013); Released versions v2 and Release ledger v2; the CI lists for GitHub Actions; GitHub Actions pinned; Renovate off (R7)
 
 Approving this file is the owner's agreement to add every dependency it names (requirements 9.5, spec rule). Versions
 are in **Pinned versions** at the end; each is verified against its vendor's official page as of 2026-11-08, or marked
@@ -15,7 +15,7 @@ not in this table is reviewed in slice 0's pull request.
 ```text
 NEW SYSTEM · NEW-jobwright · Jobwright: the new system and its foundations
 LAYOUT       several: jobwright-app, jobwright-gitops — the coordination plan holds one slice-0 part each (parts 1, 2)
-CONTRACTS    Jobwright API v1: api -> web (jobwright-app; ADR 0004) · Released versions v1: jobwright-app CI -> jobwright-gitops (ADR 0006) · Release ledger v1: the cluster -> checks/promotion (ADR 0006)
+CONTRACTS    Jobwright API v1: api -> web (jobwright-app; ADR 0004) · Released versions v2: jobwright-app CI -> jobwright-gitops (ADR 0012) · Release ledger v2 (rollout records): Prashant Sharma -> checks/promotion (ADR 0012)
 NFR CHECKS   (this increment; S11)
              NFR-SEC-01: AC14 browser test · NFR-SEC-02/03: ProblemFormatContractTests (AC13) · NFR-SEC-04: AC16 test from two pods
              NFR-SEC-05: AC15 tests on every route class · NFR-SEC-06: gitleaks in CI (AC24) · NFR-SEC-07: trivy and syft in CI (AC24)
@@ -74,15 +74,16 @@ SCAFFOLD     create-next-app 16.4.5 — `pnpm create next-app@16.4.5 web --ts --
                `dotnet new classlib` for SharedKernel and each module and contracts project, `dotnet new install xunit.v3.templates::4.0.2`
                and `dotnet new xunit3` for each test project, `dotnet new tool-manifest && dotnet tool install dotnet-ef --version 10.0.14` — api/
              (slice 0 runs these and commits their output as an approved recipe commit; also `global.json` pinning SDK 10.0.403 with the test runner set to Microsoft Testing Platform)
-CI           required, in order (ADR 0005; building-ci-pipelines), every one running a COMMANDS entry or a named tool:
+CI           GitHub Actions on ubuntu-24.04 (ADR 0011); every gate reports on the pull request and blocks nothing on Free (KL1); in order (building-ci-pipelines), every one running a COMMANDS entry or a named tool:
              1 setup (pnpm install --frozen-lockfile with scripts blocked; dotnet restore --locked-mode) · 2 lint (check.sh lint, actionlint)
              3 unit (vitest; dotnet test --filter Category=Unit) · 4 contract (ContractDocumentTests, consumer tests, oasdiff from the second release)
              5 integration (dotnet test --filter Category=Integration against Testcontainers PostgreSQL 17; RowLevelSecurityTests; schema check;
              up-down-up migrations; AC25 from the second release) · 6 scans (gitleaks; trivy fs on lock files)
              7 build once (three images; digests recorded; syft bill of materials; trivy image) · 8 browser (Playwright against the built
              images with a test Keycloak: AC1 to AC3, AC7 to AC12, AC14; axe) · 9 budget (AC26)
-             10 author check (fails a pull request whose author is the only code owner of a changed path; ADR 0005)
-             on push to main only: publish the images and update staging in jobwright-gitops (ADR 0006)
+             on push to main only (concurrency group main-release): build, scan, bills of materials, browser tests against those digests,
+             push to ghcr.io and move `main` (packages: write), then commit staging's versions to jobwright-gitops with STAGING_TOKEN,
+             never backwards (ADR 0012; Released versions v2)
 
 REPOSITORY   jobwright-gitops
 STACK        Kubernetes manifests, Helm values and Argo CD Applications (YAML); Bash for scripts; Python 3 standard library for checks — ADR: adr-draft-1.md, adr-draft-6.md, adr-draft-7.md, adr-draft-8.md
@@ -90,8 +91,8 @@ DEPENDENCIES platform (cluster): k3d with its k3s image (9.4); Traefik chart (9.
                Argo Rollouts (9.4); Prometheus, prometheus-community "prometheus" chart, server only (9.4, ADR 0007); Sealed Secrets
                controller and kubeseal (9.4); PostgreSQL 17 official image (9.1); Keycloak 26 image (9.1); Mailpit (9.1);
                curlimages/curl (the canary's load job, ADR 0006)
-             machine (outside the cluster): Gitea, gitea/runner, docker:dind (ADR 0005); the k3d registry (registry image);
-               mkcert (the local certificate authority, ADR 0008)
+             machine (outside the cluster): mkcert (the local certificate authority, ADR 0008); nothing else (ADR 0013)
+             GitHub: GitHub Actions (hosted runners), GitHub Container Registry, an SSH deploy key (read only) for Argo CD (ADR 0011 to 0013)
              tools in CI: shellcheck (scripts), actionlint, kubeconform (manifest validation), helm (rendering), yq (reading values in checks)
              deferred (not approved by this design): MinIO or another object store, flagd and OpenFeature, a live-update backplane
 PATHS        bootstrap/ (the owner's one-time setup) · platform/ (one Argo CD Application per component, pinned) ·
@@ -103,19 +104,21 @@ COMMANDS     tests: python3 -m unittest discover -s checks -p 'test_*.py' && scr
 SCAFFOLD     none: slice 0 writes the skeleton by hand, tests first (the guard's test first: it must refuse the default kubeconfig)
 CI           required, in order: 1 lint (shellcheck, actionlint, the SHA rule, the guard-sourcing rule) · 2 tests (checks and guard tests)
              3 render (helm template and kubeconform for every Application and both environments) · 4 checks/promotion (on pull requests
-             that change environments/production/) · 5 no-cluster-reach (no API server answers from inside a job) · 6 author check (as in jobwright-app)
-             on push to main: staging guard (fails visibly when a commit touching environments/staging/ was not made by jobwright-bot
-             or names a digest no main build of jobwright-app produced; ADR 0005, R5)
+             that change environments/production/; P4) · 5 values check (digests only, one revision, run number never lower)
+             on every push to main, staging commits included: render, values check, and the production-change check (reports a change to
+             environments/production/ that did not come from a merged promotion pull request; ADR 0012)
+             on demand (workflow_dispatch): propose promotion (opens the production promotion pull request; ADR 0011)
 
-APPROVED     Prashant Sharma, 2026-11-08, recorded on the work item with this file's version and commit
+APPROVED     Prashant Sharma, 2026-11-08, recorded on the work item with this file's version and commit (v1)
+APPROVED v2  Prashant Sharma (tech lead), 2026-11-09, recorded at his instruction, with every dependency change above
 ```
 
 ## Pinned versions
 
 Read on the vendors' official pages and registries on 2026-11-08 (checking-official-docs). FACT unless marked. The
 rule used: the newest stable release, except where it is a new major or minor line only days old and an older line is
-still supported (then the older line, so a fresh release does not land in the first build). Renovate proposes every
-later update as a pull request, after a minimum release age the plan sets.
+still supported (then the older line, so a fresh release does not land in the first build). Renovate is off until
+GitHub Pro (R7): Prashant Sharma proposes later updates himself, as pull requests through the same gates.
 
 | Component | Pin | Source | Note |
 |---|---|---|---|
@@ -147,25 +150,24 @@ later update as a pull request, after a minimum release age the plan sets.
 | PostgreSQL | 17.11, image `postgres:17.11` | postgresql.org; hub.docker.com/_/postgres | Official image, not Bitnami; supported to 2029-11-08 |
 | Keycloak | 26.8.2, image `quay.io/keycloak/keycloak:26.8.2` | github.com/keycloak/keycloak/releases | Organizations are a supported feature |
 | Mailpit | 1.33.1, image `axllent/mailpit:v1.33.1` | github.com/axllent/mailpit/releases | |
-| k3d | 5.9.0, with `--image rancher/k3s:v1.37.2-k3s1` and registry `registry:3.1.2` set explicitly | github.com/k3d-io/k3d/releases; hub.docker.com/r/rancher/k3s; hub.docker.com/_/registry | k3d's own defaults are stale (registry:2); no documented compatibility limit for 1.37 (INFERENCE: current stable channel, which k3d tests); proved in slice 0 |
+| k3d | 5.9.0, with `--image rancher/k3s:v1.37.2-k3s1` set explicitly; no local registry (ADR 0013) | github.com/k3d-io/k3d/releases; hub.docker.com/r/rancher/k3s | No documented compatibility limit for 1.37 (INFERENCE: current stable channel, which k3d tests); proved in slice 0 |
 | Traefik | 3.7.17, chart 42.3.1 | github.com/traefik/traefik/releases; traefik.github.io/charts | Supports Gateway API v1.6.3; `crossProviderNamespaces` set explicitly (its documented default is contradictory) |
 | Gateway API CRDs | v1.6.3, standard channel | doc.traefik.io (supported version) | Not 1.7.0, which Traefik does not yet support |
 | Argo CD | 3.5.7, chart `argo-cd` 10.11.7 | github.com/argoproj/argo-cd/releases; argoproj.github.io/argo-helm | 3.6.x is days old; 3.5 is still patched |
 | Argo Rollouts | 1.10.2, chart `argo-rollouts` 2.43.11 | github.com/argoproj/argo-rollouts/releases; argoproj.github.io/argo-helm | |
 | Prometheus | 3.16.0, chart `prometheus` 29.45.1 | prometheus-community.github.io/helm-charts | Server only; not kube-prometheus-stack |
 | Sealed Secrets | controller and kubeseal 0.41.2, chart 2.22.0 from bitnami-labs | bitnami.github.io/sealed-secrets | Not the frozen bitnami/charts copy (app 0.31.0) |
-| Gitea | 28.3.0 | github.com/go-gitea/gitea/releases | Requires code-owner approval (ADR 0005) |
-| Gitea runner | `gitea/runner` 5.4.1 | github.com/go-gitea/gitea/releases (runner repo) | |
-| Renovate | 44.222.4 | registry.npmjs.org/renovate | |
+| Renovate | off until GitHub Pro (R7) | — | Its hosted app's free tier covers private repositories (docs.renovatebot.com); not installed now |
 | Trivy | 0.76.2 | github.com/aquasecurity/trivy/releases | Never 0.69.4 to 0.69.6 (malicious builds, GHSA-69fq-xp46-6x23); pinned by digest |
 | Syft | 1.57.0 | github.com/anchore/syft/releases | |
-| gitleaks | 8.30.1 | github.com/gitleaks/gitleaks/releases | Slow release pace; watched by Renovate |
+| gitleaks | 8.30.1 | github.com/gitleaks/gitleaks/releases | Slow release pace; used by CI and the pre-push hook (E23 v2) |
 | oasdiff | 1.36.0 | github.com/oasdiff/oasdiff/releases | |
+| GitHub Actions (pinned by commit SHA) | actions/checkout v7.0.1 `3d3c42e5aac5ba805825da76410c181273ba90b1` · actions/setup-node v7.1.0 `949feb2413d6458794dcd2491c4babbbce0c15c1` · pnpm/action-setup v6.1.1 `73e46992e05b19abd31f2f3c20e0e7370d762115` · actions/setup-dotnet v6.1.0 `0f4a354dd5547a28c70b7853dbd95d5b67886e73` · actions/cache v6.1.0 `55cc8345863c7cc4c66a329aec7e433d2d1c52a9` · docker/setup-buildx-action v4.4.1 `f87e5991a6d7451dcb8d9637bfbc97413f497069` · docker/login-action v4.8.0 `8aa5831fb8d48d8f76594c7ddde61ae58019f550` · docker/build-push-action v7.4.0 `c3c9e263c25d99ce0380d002d59b67737d91b0dc` · docker/metadata-action v6.2.0 `dc802804100637a589fabce1cb79ff13a1411302` · actions/upload-artifact v7.0.2 `cf430e030ddbb5b0abf93d22962f4752f3646cd9` · aquasecurity/trivy-action v0.36.0 `ed142fd0673e97e23eac54620cfb913e5ce36c25` (with `version: v0.76.2`) · anchore/sbom-action v0.24.3 `66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c` · gitleaks/gitleaks-action v3.0.0 `e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e` | api.github.com releases and git refs of each repository, cross-checked with `git ls-remote` | Annotated tags resolved to their commits. trivy-action 0.36.0 is an immutable release after the March 2026 compromise (GHSA-69fq-xp46-6x23). gitleaks-action is under its own licence; a personal account's repositories need no licence key. actions/delete-package-versions is not used (P2). actionlint 1.7.12 is a binary, not an action |
+| GitHub-hosted runner | `ubuntu-24.04` | docs.github.com | A fixed label, never `ubuntu-latest` |
 | create-next-app | 16.4.5 | registry.npmjs.org; nextjs.org (create-next-app reference) | Scaffolding only |
 | pg, @types/pg | 8.23.1 | registry.npmjs.org | |
 | shadcn's runtime set | radix-ui 1.8.1, class-variance-authority 0.7.1, clsx 2.1.1, tailwind-merge 3.7.0, lucide-react 1.70.0, tw-animate-css 1.4.0 | registry.npmjs.org | |
 | @types/node, @types/react | 26.6.6, 19.3.0 | registry.npmjs.org | |
-| docker:dind | `docker:29.9.3-dind` | hub.docker.com/_/docker | The runner's own daemon (ADR 0005) |
 | mkcert | 1.4.4 | github.com/FiloSottile/mkcert/releases | No release since 2022; small and stable; run once by the owner |
 | curlimages/curl | 8.23.0 | hub.docker.com/r/curlimages/curl | The canary load job |
 | shellcheck, actionlint, kubeconform, yq | 0.11.0, 1.7.12, 0.8.0, 4.54.2 | their GitHub releases | |

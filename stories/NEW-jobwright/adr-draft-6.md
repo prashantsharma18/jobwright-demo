@@ -6,7 +6,7 @@
 - **Tier and main risk:** 3: a bad version reaching every user, a rollback that does not happen, or a schema change that cannot be undone
 - **Changed since the last version:** first version
 
-Status: Accepted at design approval (approved by Prashant Sharma, decider, 2026-11-09)
+Status: Superseded by 0012 (accepted 2026-11-09; superseded 2026-11-09, design amendment 1)
 Decider: Prashant Sharma (tech lead, and release owner for E13 to E17) · Agreed: Prashant Sharma · Work item: NEW-jobwright · Tier: 3
 
 ## Context

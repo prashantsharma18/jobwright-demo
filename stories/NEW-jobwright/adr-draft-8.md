@@ -6,7 +6,7 @@
 - **Tier and main risk:** 3: sign-in attempts that are not limited per client, or a client that chooses its own address
 - **Changed since the last version:** first version
 
-Status: Accepted at design approval (approved by Prashant Sharma, decider, 2026-11-09)
+Status: Accepted at design approval (approved by Prashant Sharma, decider, 2026-11-09) · Amended by 0013 (2026-11-09)
 Decider: Prashant Sharma (tech lead, and risk owner for E9 and E18) · Agreed: Prashant Sharma (security reviewer, known limit I3) · Work item: NEW-jobwright · Tier: 3
 
 ## Context
