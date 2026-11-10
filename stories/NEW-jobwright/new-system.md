@@ -5,7 +5,7 @@
 - **Asked of:** The tech lead or architect, to approve the stack, every dependency and the scaffold commands
 - **Record it:** On the APPROVED line below, and on the work item with this file's version and commit
 - **Tier and main risk:** 3: a dependency or platform piece that does not behave as the design assumes (U1, U2, U7), or memory over 6 GB (U9)
-- **Changed since the last version:** v2 (2026-11-09, design amendment 1, spec v3): GitHub instead of Gitea, its runner, Docker-in-Docker and the local registry (ADR 0011, 0012, 0013); Released versions v2 and Release ledger v2; the CI lists for GitHub Actions; GitHub Actions pinned; Renovate off (R7)
+- **Changed since the last version:** v3 (2026-11-10, from jobwright-app's part 1 plan v1, questions Q1, Q2, Q6, Q7): the scaffold runs without prompts and writes no AGENTS.md (`--no-agents-md`, shadcn's flags, no dependency build script during the scaffold); two packages the generators add are approved; the .NET test filter is `--filter-trait`. Before that, v2 (2026-11-09, design amendment 1, spec v3): GitHub instead of Gitea, its runner, Docker-in-Docker and the local registry (ADR 0011, 0012, 0013); Released versions v2 and Release ledger v2; the CI lists for GitHub Actions; GitHub Actions pinned; Renovate off (R7)
 
 Approving this file is the owner's agreement to add every dependency it names (requirements 9.5, spec rule). Versions
 are in **Pinned versions** at the end; each is verified against its vendor's official page as of 2026-11-08, or marked
@@ -42,11 +42,11 @@ DEPENDENCIES web runtime: next, react, react-dom (the framework, 9.1); openid-cl
                @opentelemetry/sdk-node, @opentelemetry/exporter-trace-otlp-http, @opentelemetry/exporter-metrics-otlp-http,
                @opentelemetry/exporter-logs-otlp-http, @opentelemetry/instrumentation-http (telemetry, ADR 0009);
                shadcn/ui's runtime set: radix-ui, class-variance-authority, clsx, tailwind-merge, lucide-react, tw-animate-css (9.1)
-             web development: typescript, @types/node, @types/react, @types/pg, tailwindcss, @tailwindcss/postcss (9.1);
+             web development: typescript, @types/node, @types/react, @types/react-dom (v3, added by create-next-app), @types/pg, tailwindcss, @tailwindcss/postcss (9.1);
                shadcn (the CLI, scaffolding only); openapi-typescript (generates the types); eslint, eslint-config-next;
                prettier (S5); vitest (unit and consumer tests); @playwright/test (browser tests, AC26 budget);
                @axe-core/playwright (AC12); pnpm (the package manager, pinned by packageManager)
-             api: Npgsql.EntityFrameworkCore.PostgreSQL; Microsoft.EntityFrameworkCore.Design and the dotnet-ef tool (migration bundles);
+             api: Microsoft.Extensions.Hosting (v3, the worker template's host); Npgsql.EntityFrameworkCore.PostgreSQL; Microsoft.EntityFrameworkCore.Design and the dotnet-ef tool (migration bundles);
                Microsoft.AspNetCore.OpenApi (the generated document for ContractDocumentTests); Microsoft.AspNetCore.Authentication.JwtBearer
                (token validation); OpenTelemetry.Extensions.Hosting, OpenTelemetry.Exporter.OpenTelemetryProtocol,
                OpenTelemetry.Instrumentation.AspNetCore, OpenTelemetry.Instrumentation.Http, Npgsql.OpenTelemetry (telemetry)
@@ -66,9 +66,13 @@ COMMANDS     tests: scripts/check.sh test · lint: scripts/check.sh lint · buil
              dotnet build api/Jobwright.slnx -c Release && the three docker builds; dev.sh starts PostgreSQL 17 and Keycloak 26
              containers on 127.0.0.1:55432 and 127.0.0.1:58080, then the API and the web app, and refuses to start while the
              k3d cluster runs, to stay within memory)
-SCAFFOLD     create-next-app 16.4.5 — `pnpm create next-app@16.4.5 web --ts --tailwind --eslint --app --src-dir --import-alias "@/*" --use-pnpm --no-react-compiler --no-cache-components --no-agent-feedback --yes` — web/
+SCAFFOLD     create-next-app 16.4.5 — `PNPM_CONFIG_STRICT_DEP_BUILDS=false pnpm create next-app@16.4.5 web --ts --tailwind --eslint --app --src-dir --import-alias "@/*" --use-pnpm --no-react-compiler --no-cache-components --no-agents-md --no-agent-feedback --yes` — web/
                (flags from the create-next-app reference; Cache Components off because a nonce-based CSP needs dynamic rendering, ADR 0010)
-             shadcn — `pnpm -C web dlx shadcn@4.23.0 init` then `add button card dropdown-menu sheet skeleton separator tooltip` — web/src/components/ui
+             shadcn — `PNPM_CONFIG_STRICT_DEP_BUILDS=false pnpm -C web dlx shadcn@4.23.0 init --defaults --base radix --yes --no-monorepo --no-rtl` then
+               `add button card dropdown-menu sheet skeleton separator tooltip --yes` (same variable) — web/src/components/ui
+             (v3: create-next-app writes AGENTS.md by default and shadcn add prompts unless `--yes` (nextjs.org; ui.shadcn.com/docs/cli);
+               `--base radix` matches radix-ui below; the variable lets the scaffold's installs finish while no build script runs,
+               since nothing is in allowBuilds (pnpm.io/settings/build); slice 0 then decides each build, with strict builds on)
              dotnet — `dotnet new sln -n Jobwright -o api` (slnx), `dotnet new webapi -n Jobwright.Api -o api/src/Jobwright.Api`,
                `dotnet new worker -n Jobwright.Worker -o api/src/Jobwright.Worker`, `dotnet new console -n Jobwright.Admin -o api/src/Jobwright.Admin`,
                `dotnet new classlib` for SharedKernel and each module and contracts project, `dotnet new install xunit.v3.templates::4.0.2`
@@ -76,8 +80,8 @@ SCAFFOLD     create-next-app 16.4.5 — `pnpm create next-app@16.4.5 web --ts --
              (slice 0 runs these and commits their output as an approved recipe commit; also `global.json` pinning SDK 10.0.403 with the test runner set to Microsoft Testing Platform)
 CI           GitHub Actions on ubuntu-24.04 (ADR 0011); every gate reports on the pull request and blocks nothing on Free (KL1); in order (building-ci-pipelines), every one running a COMMANDS entry or a named tool:
              1 setup (pnpm install --frozen-lockfile with scripts blocked; dotnet restore --locked-mode) · 2 lint (check.sh lint, actionlint)
-             3 unit (vitest; dotnet test --filter Category=Unit) · 4 contract (ContractDocumentTests, consumer tests, oasdiff from the second release)
-             5 integration (dotnet test --filter Category=Integration against Testcontainers PostgreSQL 17; RowLevelSecurityTests; schema check;
+             3 unit (vitest; dotnet test --filter-trait "Category=Unit") · 4 contract (ContractDocumentTests, consumer tests, oasdiff from the second release)
+             5 integration (dotnet test --filter-trait "Category=Integration" against Testcontainers PostgreSQL 17; RowLevelSecurityTests; schema check;
              up-down-up migrations; AC25 from the second release) · 6 scans (gitleaks; trivy fs on lock files)
              7 build once (three images; digests recorded; syft bill of materials; trivy image) · 8 browser (Playwright against the built
              images with a test Keycloak: AC1 to AC3, AC7 to AC12, AC14; axe) · 9 budget (AC26)
@@ -111,6 +115,9 @@ CI           required, in order: 1 lint (shellcheck, actionlint, the SHA rule, t
 
 APPROVED     Prashant Sharma, 2026-11-08, recorded on the work item with this file's version and commit (v1)
 APPROVED v2  Prashant Sharma (tech lead), 2026-11-09, recorded at his instruction, with every dependency change above
+APPROVED v3  Prashant Sharma (tech lead), 2026-11-10, recorded at his instruction: the scaffold flags (`--no-agents-md`, shadcn's
+             flags, no dependency build script during the scaffold), the two generator-added packages (@types/react-dom within 19.3.x, a stop outside it;
+             Microsoft.Extensions.Hosting 10.0.14, a stop if nuget.org has no such version) and `--filter-trait` for the .NET gates
 ```
 
 ## Pinned versions
@@ -141,7 +148,7 @@ GitHub Pro (R7): Prashant Sharma proposes later updates himself, as pull request
 | .NET SDK, runtime | SDK 10.0.403, runtime 10.0.14 (LTS) | builds.dotnet.microsoft.com release metadata | Supported to 2028-11-14 |
 | ASP.NET Core packages (OpenApi, JwtBearer, Mvc.Testing), EF Core, EF Design, dotnet-ef | 10.0.14 | nuget.org | OpenAPI 3.1 is .NET 10's default (learn.microsoft.com) |
 | Npgsql.EntityFrameworkCore.PostgreSQL | 10.0.3 | nuget.org | Requires EF Core 10.0.4 or later in 10.x |
-| xunit.v3, xunit.v3.templates | 4.0.2 | nuget.org | Microsoft Testing Platform v2, switched on for `dotnet test` in `global.json` |
+| xunit.v3, xunit.v3.templates | 4.0.2 | nuget.org | Microsoft Testing Platform v2, switched on for `dotnet test` in `global.json`; filter by trait with `--filter-trait`, VSTest's `--filter` is rejected (xunit.net, v3) |
 | xunit.runner.visualstudio, Microsoft.NET.Test.Sdk | 4.0.1, 18.11.0 | nuget.org; xunit.net (v3, Microsoft Testing Platform) | Kept, as xUnit recommends, until the platform mode is proved; then removed by a plan step |
 | Testcontainers.PostgreSql | 4.16.0 | nuget.org | |
 | OpenTelemetry .NET | Extensions.Hosting 1.20.1, Exporter.OpenTelemetryProtocol 1.20.1, Instrumentation.AspNetCore 1.20.2, Instrumentation.Http 1.20.2; Npgsql.OpenTelemetry 10.0.3 | nuget.org | |
@@ -168,6 +175,8 @@ GitHub Pro (R7): Prashant Sharma proposes later updates himself, as pull request
 | pg, @types/pg | 8.23.1 | registry.npmjs.org | |
 | shadcn's runtime set | radix-ui 1.8.1, class-variance-authority 0.7.1, clsx 2.1.1, tailwind-merge 3.7.0, lucide-react 1.70.0, tw-animate-css 1.4.0 | registry.npmjs.org | |
 | @types/node, @types/react | 26.6.6, 19.3.0 | registry.npmjs.org | |
+| @types/react-dom | 19.3.x, the patch create-next-app resolves (UNKNOWN until jobwright-app's slice-0-scaffold; its progress note records it) | registry.npmjs.org | v3; a version outside 19.3.x is a stop |
+| Microsoft.Extensions.Hosting | 10.0.14 (INFERENCE: released with runtime 10.0.14; checked on nuget.org in slice-0-skeleton, a stop if absent) | nuget.org | v3; revisited when the worker gains health and version endpoints (spec A3) |
 | mkcert | 1.4.4 | github.com/FiloSottile/mkcert/releases | No release since 2022; small and stable; run once by the owner |
 | curlimages/curl | 8.23.0 | hub.docker.com/r/curlimages/curl | The canary load job |
 | shellcheck, actionlint, kubeconform, yq | 0.11.0, 1.7.12, 0.8.0, 4.54.2 | their GitHub releases | |

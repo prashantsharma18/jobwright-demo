@@ -29,10 +29,10 @@ Each step's pull request merges before the next starts.
 | aidlc-design (amendment 1: `design-amendment-1.md`) | workspace root | done (approved by Prashant Sharma, 2026-11-09, recorded at his instruction) |
 | create the repositories the design's LAYOUT names (a person) | workspace root | done (Prashant Sharma, 2026-11-09: jobwright-app, jobwright-gitops) |
 | aidlc-onboard (add the repositories to WORKSPACE.md and the deny rules) | workspace root | done (2026-11-09; deny rules already in `.claude/settings.json`) |
-| aidlc-onboard (prepare) | jobwright-app | to do |
-| slice 0 | jobwright-app | to do |
+| aidlc-onboard (prepare) | jobwright-app | done (2026-11-09, merged to main as aba6d07) |
+| slice 0 | jobwright-app | doing (plan v1 approved 2026-11-10; see jobwright-app plans/NEW-jobwright/part-1/README.md) |
 | aidlc-onboard (confirm) | jobwright-app | to do |
-| aidlc-onboard (prepare) | jobwright-gitops | to do |
+| aidlc-onboard (prepare) | jobwright-gitops | done (2026-11-09, merged to main as 9e91986) |
 | slice 0 | jobwright-gitops | to do |
 | aidlc-onboard (confirm) | jobwright-gitops | to do |
 | aidlc-release | workspace root | to do |
