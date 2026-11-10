@@ -5,7 +5,7 @@
 - **Asked of:** The tech lead or architect, to approve the stack, every dependency and the scaffold commands
 - **Record it:** On the APPROVED line below, and on the work item with this file's version and commit
 - **Tier and main risk:** 3: a dependency or platform piece that does not behave as the design assumes (U1, U2, U7), or memory over 6 GB (U9)
-- **Changed since the last version:** v3 (2026-11-10, from jobwright-app's part 1 plan v1, questions Q1, Q2, Q6, Q7): the scaffold runs without prompts and writes no AGENTS.md (`--no-agents-md`, shadcn's flags, no dependency build script during the scaffold); two packages the generators add are approved; the .NET test filter is `--filter-trait`. Before that, v2 (2026-11-09, design amendment 1, spec v3): GitHub instead of Gitea, its runner, Docker-in-Docker and the local registry (ADR 0011, 0012, 0013); Released versions v2 and Release ledger v2; the CI lists for GitHub Actions; GitHub Actions pinned; Renovate off (R7)
+- **Changed since the last version:** v4 (2026-11-10, from jobwright-app's part 1 plan v2, question Q10, and the recipe review R1 to R5 of commit 06a65b0): cn replaces clsx and tailwind-merge; @tailwindcss/turbopack replaces @tailwindcss/postcss; xunit.v3 alone, on Microsoft Testing Platform v2, replaces xunit.v3 with xunit.runner.visualstudio and Microsoft.NET.Test.Sdk (Prashant Sharma chose xunit.v3 over xunit.v3.mtp-v2, 2026-11-10); shadcn becomes a build-time devDependency; the scaffold writes `dotnet-tools.json` and `global.json` at the repository root (option A); **v4 review lists** below set every lock-file entry and PackageReference against DEPENDENCIES. Before that, v3 (2026-11-10, from jobwright-app's part 1 plan v1, questions Q1, Q2, Q6, Q7): the scaffold runs without prompts and writes no AGENTS.md (`--no-agents-md`, shadcn's flags, no dependency build script during the scaffold); two packages the generators add are approved; the .NET test filter is `--filter-trait`. Before that, v2 (2026-11-09, design amendment 1, spec v3): GitHub instead of Gitea, its runner, Docker-in-Docker and the local registry (ADR 0011, 0012, 0013); Released versions v2 and Release ledger v2; the CI lists for GitHub Actions; GitHub Actions pinned; Renovate off (R7)
 
 Approving this file is the owner's agreement to add every dependency it names (requirements 9.5, spec rule). Versions
 are in **Pinned versions** at the end; each is verified against its vendor's official page as of 2026-11-08, or marked
@@ -41,16 +41,16 @@ DEPENDENCIES web runtime: next, react, react-dom (the framework, 9.1); openid-cl
                openapi-fetch (calls the API through the generated types, ADR 0004); pg (the web role's access to web_sessions, ADR 0002);
                @opentelemetry/sdk-node, @opentelemetry/exporter-trace-otlp-http, @opentelemetry/exporter-metrics-otlp-http,
                @opentelemetry/exporter-logs-otlp-http, @opentelemetry/instrumentation-http (telemetry, ADR 0009);
-               shadcn/ui's runtime set: radix-ui, class-variance-authority, clsx, tailwind-merge, lucide-react, tw-animate-css (9.1)
-             web development: typescript, @types/node, @types/react, @types/react-dom (v3, added by create-next-app), @types/pg, tailwindcss, @tailwindcss/postcss (9.1);
-               shadcn (the CLI, scaffolding only); openapi-typescript (generates the types); eslint, eslint-config-next;
+               shadcn/ui's runtime set: radix-ui, class-variance-authority, cn (v4, in place of clsx and tailwind-merge), lucide-react, tw-animate-css (9.1)
+             web development: typescript, @types/node, @types/react, @types/react-dom (v3, added by create-next-app), @types/pg, tailwindcss, @tailwindcss/turbopack (v4, in place of @tailwindcss/postcss) (9.1);
+               shadcn (v4: a build-time devDependency, since globals.css imports shadcn/tailwind.css); openapi-typescript (generates the types); eslint, eslint-config-next;
                prettier (S5); vitest (unit and consumer tests); @playwright/test (browser tests, AC26 budget);
                @axe-core/playwright (AC12); pnpm (the package manager, pinned by packageManager)
              api: Microsoft.Extensions.Hosting (v3, the worker template's host); Npgsql.EntityFrameworkCore.PostgreSQL; Microsoft.EntityFrameworkCore.Design and the dotnet-ef tool (migration bundles);
                Microsoft.AspNetCore.OpenApi (the generated document for ContractDocumentTests); Microsoft.AspNetCore.Authentication.JwtBearer
                (token validation); OpenTelemetry.Extensions.Hosting, OpenTelemetry.Exporter.OpenTelemetryProtocol,
                OpenTelemetry.Instrumentation.AspNetCore, OpenTelemetry.Instrumentation.Http, Npgsql.OpenTelemetry (telemetry)
-             api tests: xunit.v3, xunit.runner.visualstudio, Microsoft.NET.Test.Sdk, Microsoft.AspNetCore.Mvc.Testing,
+             api tests: xunit.v3 (v4: alone, on Microsoft Testing Platform v2; no xunit.runner.visualstudio or Microsoft.NET.Test.Sdk), Microsoft.AspNetCore.Mvc.Testing,
                Testcontainers.PostgreSql, ArchUnitNET.xUnitV3 (module boundaries, ADR 0001; see Pinned versions)
              tools in CI: oasdiff (ADR 0004), gitleaks (NFR-SEC-06), trivy (NFR-SEC-07), syft (bills of materials),
                actionlint (workflow lint and the SHA rule), helm (chart rendering tests)
@@ -59,7 +59,8 @@ DEPENDENCIES web runtime: next, react, react-dom (the framework, 9.1); openid-cl
 PATHS        web/ (src/app, src/components/ui, src/server/{auth,api,session}, tests/e2e) · api/ (Jobwright.slnx, contract/openapi.yaml,
              src/Jobwright.Api, src/Jobwright.Worker, src/Jobwright.Admin, src/Jobwright.SharedKernel, src/Modules/Tenancy,
              src/Modules/Tenancy.Contracts, src/Modules/Identity, src/Modules/Identity.Contracts, tests/*) · charts/jobwright/ ·
-             docs/adr/ · scripts/ · .github/workflows/ · Dockerfile.web, Dockerfile.api, Dockerfile.worker
+             docs/adr/ · scripts/ · .github/workflows/ · Dockerfile.web, Dockerfile.api, Dockerfile.worker ·
+             dotnet-tools.json and global.json at the repository root (v4, option A)
 COMMANDS     tests: scripts/check.sh test · lint: scripts/check.sh lint · build: scripts/check.sh build · run: scripts/dev.sh   (onboard writes them to AGENTS.md as "not yet run")
              (check.sh test = pnpm -C web test && dotnet test api/Jobwright.slnx; lint = pnpm -C web lint (the ESLint CLI) && pnpm -C web format:check &&
              pnpm -C web typecheck && dotnet format api/Jobwright.slnx --verify-no-changes; build = pnpm -C web build &&
@@ -78,6 +79,10 @@ SCAFFOLD     create-next-app 16.4.5 — `PNPM_CONFIG_STRICT_DEP_BUILDS=false pnp
                `dotnet new classlib` for SharedKernel and each module and contracts project, `dotnet new install xunit.v3.templates::4.0.2`
                and `dotnet new xunit3` for each test project, `dotnet new tool-manifest && dotnet tool install dotnet-ef --version 10.0.14` — api/
              (slice 0 runs these and commits their output as an approved recipe commit; also `global.json` pinning SDK 10.0.403 with the test runner set to Microsoft Testing Platform)
+             (v4, option A: on SDK 10.0.403 `dotnet new tool-manifest` writes `dotnet-tools.json` at the repository root, not
+               `.config/`, and the xunit3 template's post-action writes the root `global.json` with the test runner only;
+               slice-0-skeleton adds the SDK pin to it. The xunit3 template references xunit.v3.mtp-v2 and targets net8.0;
+               slice-0-skeleton changes both test projects to xunit.v3 4.0.2 and net10.0)
 CI           GitHub Actions on ubuntu-24.04 (ADR 0011); every gate reports on the pull request and blocks nothing on Free (KL1); in order (building-ci-pipelines), every one running a COMMANDS entry or a named tool:
              1 setup (pnpm install --frozen-lockfile with scripts blocked; dotnet restore --locked-mode) · 2 lint (check.sh lint, actionlint)
              3 unit (vitest; dotnet test --filter-trait "Category=Unit") · 4 contract (ContractDocumentTests, consumer tests, oasdiff from the second release)
@@ -118,6 +123,10 @@ APPROVED v2  Prashant Sharma (tech lead), 2026-11-09, recorded at his instructio
 APPROVED v3  Prashant Sharma (tech lead), 2026-11-10, recorded at his instruction: the scaffold flags (`--no-agents-md`, shadcn's
              flags, no dependency build script during the scaffold), the two generator-added packages (@types/react-dom within 19.3.x, a stop outside it;
              Microsoft.Extensions.Hosting 10.0.14, a stop if nuget.org has no such version) and `--filter-trait` for the .NET gates
+APPROVED v4  Prashant Sharma (tech lead, design approver), 2026-11-10, approval delegated to Claude and recorded at
+             Prashant Sharma's instruction: every change marked v4 above and in Pinned versions (cn 0.5.2,
+             @tailwindcss/turbopack 4.3.5, xunit.v3 4.0.2 alone with no VSTest packages, shadcn as a build-time
+             devDependency, the root dotnet-tools.json and global.json), against the v4 review lists below
 ```
 
 ## Pinned versions
@@ -134,8 +143,8 @@ GitHub Pro (R7): Prashant Sharma proposes later updates himself, as pull request
 | Next.js, eslint-config-next | 16.4.5 | registry.npmjs.org/next | `next lint` is removed in 16: lint is the ESLint CLI with flat config |
 | React, React DOM | 19.3.1 | registry.npmjs.org/react | |
 | TypeScript | 5.9.3 | registry.npmjs.org/typescript | Not 7.x: openapi-typescript's peer is `^5.x` |
-| Tailwind CSS, @tailwindcss/postcss | 4.3.5 | registry.npmjs.org | |
-| shadcn (CLI) | 4.23.0 | registry.npmjs.org/shadcn | Scaffolding only |
+| Tailwind CSS, @tailwindcss/turbopack | 4.3.5 | registry.npmjs.org | v4: @tailwindcss/turbopack replaces @tailwindcss/postcss (web/next.config.ts loads it; no PostCSS config exists). It ties Tailwind to Turbopack: `next build --webpack` and PostCSS-based tools get no Tailwind |
+| shadcn (CLI) | 4.23.0 | registry.npmjs.org/shadcn | v4: a devDependency, needed at build time (globals.css imports `shadcn/tailwind.css`), not at run time; the image ships only the standalone output |
 | Prettier | 3.9.10 | registry.npmjs.org/prettier | S5 |
 | ESLint | 10.14.0 | registry.npmjs.org/eslint | Supported by eslint-config-next from 16.4.0 |
 | Vitest | 5.1.0 | registry.npmjs.org/vitest | |
@@ -148,8 +157,8 @@ GitHub Pro (R7): Prashant Sharma proposes later updates himself, as pull request
 | .NET SDK, runtime | SDK 10.0.403, runtime 10.0.14 (LTS) | builds.dotnet.microsoft.com release metadata | Supported to 2028-11-14 |
 | ASP.NET Core packages (OpenApi, JwtBearer, Mvc.Testing), EF Core, EF Design, dotnet-ef | 10.0.14 | nuget.org | OpenAPI 3.1 is .NET 10's default (learn.microsoft.com) |
 | Npgsql.EntityFrameworkCore.PostgreSQL | 10.0.3 | nuget.org | Requires EF Core 10.0.4 or later in 10.x |
-| xunit.v3, xunit.v3.templates | 4.0.2 | nuget.org | Microsoft Testing Platform v2, switched on for `dotnet test` in `global.json`; filter by trait with `--filter-trait`, VSTest's `--filter` is rejected (xunit.net, v3) |
-| xunit.runner.visualstudio, Microsoft.NET.Test.Sdk | 4.0.1, 18.11.0 | nuget.org; xunit.net (v3, Microsoft Testing Platform) | Kept, as xUnit recommends, until the platform mode is proved; then removed by a plan step |
+| xunit.v3, xunit.v3.templates | 4.0.2 | nuget.org; xunit.net/docs/getting-started/v3/microsoft-testing-platform (read 2026-11-10 by jobwright-app's plan v2) | Microsoft Testing Platform v2, switched on for `dotnet test` in `global.json`; filter by trait with `--filter-trait`, VSTest's `--filter` is rejected (xunit.net, v3). v4: from 4.0.0, xunit.v3 selects the platform's v2 by default, so it is used alone; xunit.v3.mtp-v2 (what the template adds) is not used |
+| xunit.runner.visualstudio, Microsoft.NET.Test.Sdk | not used (v4) | xunit.net (v3, Microsoft Testing Platform) | v4: removed; they serve VSTest mode only |
 | Testcontainers.PostgreSql | 4.16.0 | nuget.org | |
 | OpenTelemetry .NET | Extensions.Hosting 1.20.1, Exporter.OpenTelemetryProtocol 1.20.1, Instrumentation.AspNetCore 1.20.2, Instrumentation.Http 1.20.2; Npgsql.OpenTelemetry 10.0.3 | nuget.org | |
 | Architecture tests | TngTech.ArchUnitNET.xUnitV3 0.13.5 | nuget.org; github.com/TNG/ArchUnitNET | Active, pre-1.0; NetArchTest is unmaintained (last release 2021). It restores against xunit.v3 4.x, but runtime support is UNKNOWN (U13): slice 0's smoke test proves it, and the fallback is a reflection test over project references with no library |
@@ -173,7 +182,8 @@ GitHub Pro (R7): Prashant Sharma proposes later updates himself, as pull request
 | GitHub-hosted runner | `ubuntu-24.04` | docs.github.com | A fixed label, never `ubuntu-latest` |
 | create-next-app | 16.4.5 | registry.npmjs.org; nextjs.org (create-next-app reference) | Scaffolding only |
 | pg, @types/pg | 8.23.1 | registry.npmjs.org | |
-| shadcn's runtime set | radix-ui 1.8.1, class-variance-authority 0.7.1, clsx 2.1.1, tailwind-merge 3.7.0, lucide-react 1.70.0, tw-animate-css 1.4.0 | registry.npmjs.org | |
+| shadcn's runtime set | radix-ui 1.8.1, class-variance-authority 0.7.1, cn 0.5.2, lucide-react 1.70.0, tw-animate-css 1.4.0 | registry.npmjs.org | v4: cn replaces clsx 2.1.1 and tailwind-merge 3.7.0 (see below) |
+| cn | 0.5.2 | registry.npmjs.org/cn (read 2026-11-10 by jobwright-app's recipe review, R1) | v4. shadcn's own package (maintainer shadcn, repository github.com/shadcn-ui/cn, published by GitHub Actions with SLSA provenance v1). Pre-1.0; the name was reused (0.1.x from 2013, shadcn's from 0.2.0 on 2026-09-01). slice-0-skeleton's cn test pins its behaviour |
 | @types/node, @types/react | 26.6.6, 19.3.0 | registry.npmjs.org | |
 | @types/react-dom | 19.3.x, the patch create-next-app resolves (UNKNOWN until jobwright-app's slice-0-scaffold; its progress note records it) | registry.npmjs.org | v3; a version outside 19.3.x is a stop |
 | Microsoft.Extensions.Hosting | 10.0.14 (INFERENCE: released with runtime 10.0.14; checked on nuget.org in slice-0-skeleton, a stop if absent) | nuget.org | v3; revisited when the worker gains health and version endpoints (spec A3) |
@@ -182,3 +192,69 @@ GitHub Pro (R7): Prashant Sharma proposes later updates himself, as pull request
 | shellcheck, actionlint, kubeconform, yq | 0.11.0, 1.7.12, 0.8.0, 4.54.2 | their GitHub releases | |
 | helm (CLI, for rendering tests) | 4.3.1 | github.com/helm/helm/releases | A new major; the charts above are rendered with it in slice 0's render check |
 | Deferred, not approved | object storage (MinIO's community edition is archived, with no images since 2025-10; an alternative is chosen in the increment that needs it), flagd and OpenFeature | github.com/minio/minio | |
+
+## v4 review lists
+
+Written for the v4 approval (jobwright-app plan v2, Q10 and challenge V1), so it does not rest on a summary. Read from
+jobwright-app's recipe commit 06a65b0 (branch `feat/NEW-jobwright-slice-0`) on 2026-11-10: `web/package.json`,
+`web/pnpm-lock.yaml`, `web/pnpm-workspace.yaml` and every `*.csproj`.
+
+**web/pnpm-lock.yaml, importer `.`**: every direct entry, against DEPENDENCIES.
+
+| Entry | Specifier | Resolved | DEPENDENCIES | slice-0-skeleton pins |
+|---|---|---|---|---|
+| class-variance-authority | ^0.7.1 | 0.7.1 | listed | 0.7.1 |
+| cn | ^0.5.2 | 0.5.2 | v4 (R1) | 0.5.2 |
+| lucide-react | ^1.70.0 | 1.70.0 | listed | 1.70.0 |
+| next | 16.4.5 | 16.4.5 | listed | 16.4.5 |
+| radix-ui | ^1.8.1 | 1.8.1 | listed | 1.8.1 |
+| react, react-dom | 19.3.0 | 19.3.0 | listed | 19.3.1 (R6) |
+| shadcn | ^4.23.0, in dependencies | 4.23.0 | v4: devDependency (R5) | 4.23.0, moved to devDependencies |
+| tw-animate-css | ^1.4.0 | 1.4.0 | listed | 1.4.0 |
+| @tailwindcss/turbopack (dev) | ^4 | 4.3.5 | v4 (R2) | 4.3.5 |
+| @types/node (dev) | ^20 | 20.19.43 | listed | 26.6.6 (R6) |
+| @types/react (dev) | ^19 | 19.3.0 | listed | 19.3.0 |
+| @types/react-dom (dev) | ^19 | 19.3.0 | listed (v3) | 19.3.0, within 19.3.x |
+| eslint (dev) | ^9 | 9.39.5 | listed | 10.14.0 (R6) |
+| eslint-config-next (dev) | 16.4.5 | 16.4.5 | listed | 16.4.5 |
+| tailwindcss (dev) | ^4 | 4.3.5 | listed | 4.3.5 |
+| typescript (dev) | ^5 | 5.9.3 | listed | 5.9.3 |
+| pnpm (packageManagerDependencies) | 12.18.0 | 12.18.0 | listed | 12.18.0 |
+
+- Not in the lock and no longer in DEPENDENCIES (v4): clsx and tailwind-merge as direct entries, @tailwindcss/postcss.
+  clsx 2.1.1 stays in the lock as class-variance-authority's own dependency; tailwind-merge is not in the lock at all.
+- In the lock but imported by no generated file: cn 0.2.6, the shadcn CLI's own dependency.
+- In DEPENDENCIES but not yet in the lock (added later by slice 0 or its successors): openid-client, openapi-fetch, pg,
+  @types/pg, the OpenTelemetry packages, openapi-typescript, prettier, vitest, @playwright/test, @axe-core/playwright.
+
+**web/pnpm-workspace.yaml `allowBuilds`**, written by the scaffold: `sharp: false`, `unrs-resolver: false`. No
+dependency build script runs. slice 0 decides each build with strict builds on (v3).
+
+**PackageReferences and tools**, against DEPENDENCIES.
+
+| Project or file | Reference | Version | DEPENDENCIES | slice-0-skeleton |
+|---|---|---|---|---|
+| Jobwright.Api | Microsoft.AspNetCore.OpenApi | 10.0.14 | listed | moved to the central pin |
+| Jobwright.Worker | Microsoft.Extensions.Hosting | 10.0.14 | listed (v3) | moved to the central pin |
+| Jobwright.Api.Tests | xunit.v3.mtp-v2 | 4.0.2 | not listed (v4 chooses xunit.v3) | replaced by xunit.v3 4.0.2; net8.0 to net10.0 (R4) |
+| Jobwright.ArchitectureTests | xunit.v3.mtp-v2 | 4.0.2 | not listed (v4 chooses xunit.v3) | replaced by xunit.v3 4.0.2; net8.0 to net10.0 (R4) |
+| Jobwright.Admin, Jobwright.SharedKernel, the four module and contracts projects | none | — | — | — |
+| dotnet-tools.json (repository root) | dotnet-ef | 10.0.14 | listed | — |
+| global.json (repository root) | `test.runner`: Microsoft.Testing.Platform | — | listed (SCAFFOLD) | adds the SDK pin 10.0.403 |
+
+**Alternatives not taken, with their cost.**
+- clsx and tailwind-merge in place of cn: every generated component imports `from "cn"` directly (7 files under
+  web/src/components/ui, plus web/src/lib/utils.ts), so each import changes now and again after every `shadcn add`
+  (challenge V2).
+- shadcn/tailwind.css copied into globals.css in place of shadcn as a devDependency: shadcn's CSS updates no longer
+  arrive with the package. It would keep the CLI and its dependencies (among them @modelcontextprotocol/server and
+  @dotenvx/dotenvx) out of the install (challenge V3).
+- @tailwindcss/postcss in place of @tailwindcss/turbopack: needs a PostCSS config and a change to the generated
+  next.config.ts. Keeping turbopack ties Tailwind to Turbopack (challenge V9).
+- xunit.v3.mtp-v2 in place of xunit.v3: it needs no hand edit to the template's test projects, but it is a further
+  package name. Choosing xunit.v3 means slice-0-skeleton edits both test projects, and every later `dotnet new xunit3`
+  output gets the same edit.
+
+**Follow-up in jobwright-app before slice-0-skeleton builds.** Plan v2's Q1 (R3) and the slice-0-skeleton bundle name
+xunit.v3.mtp-v2. Choosing xunit.v3 changes both again before the build (plan Q10). That is aidlc-plan's work in
+jobwright-app, not this file's.
