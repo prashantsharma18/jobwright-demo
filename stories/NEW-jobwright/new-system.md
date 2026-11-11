@@ -5,7 +5,7 @@
 - **Asked of:** The tech lead or architect, to approve the stack, every dependency and the scaffold commands
 - **Record it:** On the APPROVED line below, and on the work item with this file's version and commit
 - **Tier and main risk:** 3: a dependency or platform piece that does not behave as the design assumes (U1, U2, U7), or memory over 6 GB (U9)
-- **Changed since the last version:** v4 (2026-11-10, from jobwright-app's part 1 plan v2, question Q10, and the recipe review R1 to R5 of commit 06a65b0): cn replaces clsx and tailwind-merge; @tailwindcss/turbopack replaces @tailwindcss/postcss; xunit.v3 alone, on Microsoft Testing Platform v2, replaces xunit.v3 with xunit.runner.visualstudio and Microsoft.NET.Test.Sdk (Prashant Sharma chose xunit.v3 over xunit.v3.mtp-v2, 2026-11-10); shadcn becomes a build-time devDependency; the scaffold writes `dotnet-tools.json` and `global.json` at the repository root (option A); **v4 review lists** below set every lock-file entry and PackageReference against DEPENDENCIES. Before that, v3 (2026-11-10, from jobwright-app's part 1 plan v1, questions Q1, Q2, Q6, Q7): the scaffold runs without prompts and writes no AGENTS.md (`--no-agents-md`, shadcn's flags, no dependency build script during the scaffold); two packages the generators add are approved; the .NET test filter is `--filter-trait`. Before that, v2 (2026-11-09, design amendment 1, spec v3): GitHub instead of Gitea, its runner, Docker-in-Docker and the local registry (ADR 0011, 0012, 0013); Released versions v2 and Release ledger v2; the CI lists for GitHub Actions; GitHub Actions pinned; Renovate off (R7)
+- **Changed since the last version:** v5 (2026-11-11, from jobwright-app's part 1 plan v3, question Q12, approved at commit 0991a3d on branch `feat/NEW-jobwright-slice-0`): xunit.v3.mtp-v2 4.0.2 replaces xunit.v3 in DEPENDENCIES and Pinned versions (Prashant Sharma, 2026-11-11, after the plan's v3 challenge W1 and W2: xunit.v3 is an alias whose platform package changes with its major version, and the xunit3 template never writes it); xunit.v3.templates 4.0.2 stays; SCAFFOLD's note says slice-0-skeleton changes the test projects to net10.0 only, and later test projects are generated with `dotnet new xunit3 --framework net10.0`; the v4 review lists' two test-project rows and the "xunit.v3 or xunit.v3.mtp-v2" alternative are corrected (mtp-v2 is in the graph under either choice); **v5 review lists** below list the transitive packages of plan Q11 and record the tool telemetry opt-outs of plan Q13, which COMMANDS also states. Before that, v4 (2026-11-10, from jobwright-app's part 1 plan v2, question Q10, and the recipe review R1 to R5 of commit 06a65b0): cn replaces clsx and tailwind-merge; @tailwindcss/turbopack replaces @tailwindcss/postcss; xunit.v3 alone, on Microsoft Testing Platform v2, replaces xunit.v3 with xunit.runner.visualstudio and Microsoft.NET.Test.Sdk (Prashant Sharma chose xunit.v3 over xunit.v3.mtp-v2, 2026-11-10); shadcn becomes a build-time devDependency; the scaffold writes `dotnet-tools.json` and `global.json` at the repository root (option A); **v4 review lists** below set every lock-file entry and PackageReference against DEPENDENCIES. Before that, v3 (2026-11-10, from jobwright-app's part 1 plan v1, questions Q1, Q2, Q6, Q7): the scaffold runs without prompts and writes no AGENTS.md (`--no-agents-md`, shadcn's flags, no dependency build script during the scaffold); two packages the generators add are approved; the .NET test filter is `--filter-trait`. Before that, v2 (2026-11-09, design amendment 1, spec v3): GitHub instead of Gitea, its runner, Docker-in-Docker and the local registry (ADR 0011, 0012, 0013); Released versions v2 and Release ledger v2; the CI lists for GitHub Actions; GitHub Actions pinned; Renovate off (R7)
 
 Approving this file is the owner's agreement to add every dependency it names (requirements 9.5, spec rule). Versions
 are in **Pinned versions** at the end; each is verified against its vendor's official page as of 2026-11-08, or marked
@@ -50,7 +50,8 @@ DEPENDENCIES web runtime: next, react, react-dom (the framework, 9.1); openid-cl
                Microsoft.AspNetCore.OpenApi (the generated document for ContractDocumentTests); Microsoft.AspNetCore.Authentication.JwtBearer
                (token validation); OpenTelemetry.Extensions.Hosting, OpenTelemetry.Exporter.OpenTelemetryProtocol,
                OpenTelemetry.Instrumentation.AspNetCore, OpenTelemetry.Instrumentation.Http, Npgsql.OpenTelemetry (telemetry)
-             api tests: xunit.v3 (v4: alone, on Microsoft Testing Platform v2; no xunit.runner.visualstudio or Microsoft.NET.Test.Sdk), Microsoft.AspNetCore.Mvc.Testing,
+             api tests: xunit.v3.mtp-v2 (v5, in place of v4's xunit.v3: the name carries the platform's major version; on Microsoft Testing Platform v2;
+               no xunit.runner.visualstudio or Microsoft.NET.Test.Sdk; its transitive packages in the v5 review lists), Microsoft.AspNetCore.Mvc.Testing,
                Testcontainers.PostgreSql, ArchUnitNET.xUnitV3 (module boundaries, ADR 0001; see Pinned versions)
              tools in CI: oasdiff (ADR 0004), gitleaks (NFR-SEC-06), trivy (NFR-SEC-07), syft (bills of materials),
                actionlint (workflow lint and the SHA rule), helm (chart rendering tests)
@@ -67,6 +68,9 @@ COMMANDS     tests: scripts/check.sh test · lint: scripts/check.sh lint · buil
              dotnet build api/Jobwright.slnx -c Release && the three docker builds; dev.sh starts PostgreSQL 17 and Keycloak 26
              containers on 127.0.0.1:55432 and 127.0.0.1:58080, then the API and the web app, and refuses to start while the
              k3d cluster runs, to stay within memory)
+             (v5, plan Q13: tool telemetry off wherever the repository runs tools. check.sh and dev.sh export
+             DOTNET_CLI_TELEMETRY_OPTOUT=1, TESTINGPLATFORM_TELEMETRY_OPTOUT=1 and NEXT_TELEMETRY_DISABLED=1; ci.yml sets
+             them in a top-level env; each Dockerfile's build stage sets its own. See the v5 review lists)
 SCAFFOLD     create-next-app 16.4.5 — `PNPM_CONFIG_STRICT_DEP_BUILDS=false pnpm create next-app@16.4.5 web --ts --tailwind --eslint --app --src-dir --import-alias "@/*" --use-pnpm --no-react-compiler --no-cache-components --no-agents-md --no-agent-feedback --yes` — web/
                (flags from the create-next-app reference; Cache Components off because a nonce-based CSP needs dynamic rendering, ADR 0010)
              shadcn — `PNPM_CONFIG_STRICT_DEP_BUILDS=false pnpm -C web dlx shadcn@4.23.0 init --defaults --base radix --yes --no-monorepo --no-rtl` then
@@ -81,8 +85,11 @@ SCAFFOLD     create-next-app 16.4.5 — `PNPM_CONFIG_STRICT_DEP_BUILDS=false pnp
              (slice 0 runs these and commits their output as an approved recipe commit; also `global.json` pinning SDK 10.0.403 with the test runner set to Microsoft Testing Platform)
              (v4, option A: on SDK 10.0.403 `dotnet new tool-manifest` writes `dotnet-tools.json` at the repository root, not
                `.config/`, and the xunit3 template's post-action writes the root `global.json` with the test runner only;
-               slice-0-skeleton adds the SDK pin to it. The xunit3 template references xunit.v3.mtp-v2 and targets net8.0;
-               slice-0-skeleton changes both test projects to xunit.v3 4.0.2 and net10.0)
+               slice-0-skeleton adds the SDK pin to it. The xunit3 template references xunit.v3.mtp-v2 and targets net8.0)
+             (v5: slice-0-skeleton changes both test projects to net10.0 only; their xunit.v3.mtp-v2 reference stays.
+               Later test projects are generated with `dotnet new xunit3 --framework net10.0`. The option is lowercase:
+               the template's dotnetcli.host.json gives Framework the long name `framework`, and SDK 10.0.403 rejects
+               `--Framework` as "not a valid option" (dry run, 2026-11-11))
 CI           GitHub Actions on ubuntu-24.04 (ADR 0011); every gate reports on the pull request and blocks nothing on Free (KL1); in order (building-ci-pipelines), every one running a COMMANDS entry or a named tool:
              1 setup (pnpm install --frozen-lockfile with scripts blocked; dotnet restore --locked-mode) · 2 lint (check.sh lint, actionlint)
              3 unit (vitest; dotnet test --filter-trait "Category=Unit") · 4 contract (ContractDocumentTests, consumer tests, oasdiff from the second release)
@@ -127,6 +134,11 @@ APPROVED v4  Prashant Sharma (tech lead, design approver), 2026-11-10, approval 
              Prashant Sharma's instruction: every change marked v4 above and in Pinned versions (cn 0.5.2,
              @tailwindcss/turbopack 4.3.5, xunit.v3 4.0.2 alone with no VSTest packages, shadcn as a build-time
              devDependency, the root dotnet-tools.json and global.json), against the v4 review lists below
+APPROVED v5  Prashant Sharma (tech lead, design approver), 2026-11-11, recorded at Prashant Sharma's instruction: every
+             change marked v5 above and in Pinned versions (xunit.v3.mtp-v2 4.0.2 as the test framework reference in
+             place of xunit.v3, xunit.v3.templates 4.0.2 unchanged; the test projects to net10.0 only; later test
+             projects by `dotnet new xunit3 --framework net10.0`; the corrected v4 review rows), against the v5 review
+             lists below (plan Q11's transitive packages, plan Q13's tool telemetry opt-outs)
 ```
 
 ## Pinned versions
@@ -157,7 +169,7 @@ GitHub Pro (R7): Prashant Sharma proposes later updates himself, as pull request
 | .NET SDK, runtime | SDK 10.0.403, runtime 10.0.14 (LTS) | builds.dotnet.microsoft.com release metadata | Supported to 2028-11-14 |
 | ASP.NET Core packages (OpenApi, JwtBearer, Mvc.Testing), EF Core, EF Design, dotnet-ef | 10.0.14 | nuget.org | OpenAPI 3.1 is .NET 10's default (learn.microsoft.com) |
 | Npgsql.EntityFrameworkCore.PostgreSQL | 10.0.3 | nuget.org | Requires EF Core 10.0.4 or later in 10.x |
-| xunit.v3, xunit.v3.templates | 4.0.2 | nuget.org; xunit.net/docs/getting-started/v3/microsoft-testing-platform (read 2026-11-10 by jobwright-app's plan v2) | Microsoft Testing Platform v2, switched on for `dotnet test` in `global.json`; filter by trait with `--filter-trait`, VSTest's `--filter` is rejected (xunit.net, v3). v4: from 4.0.0, xunit.v3 selects the platform's v2 by default, so it is used alone; xunit.v3.mtp-v2 (what the template adds) is not used |
+| xunit.v3.mtp-v2, xunit.v3.templates | 4.0.2 | nuget.org; xunit.net/docs/getting-started/v3/microsoft-testing-platform (read 2026-11-10 by jobwright-app's plan v2); api.nuget.org nuspecs of xunit.v3 3.2.2 and 4.0.2 and xunit.v3.mtp-v2 4.0.2, and xunit.v3.templates 4.0.2's TestProject.csproj (read 2026-11-11 by jobwright-app's plan v3) | Microsoft Testing Platform v2, switched on for `dotnet test` in `global.json`; filter by trait with `--filter-trait`, VSTest's `--filter` is rejected (xunit.net, v3). v5: xunit.v3.mtp-v2 replaces v4's xunit.v3. It is what the xunit3 template writes, and its name carries the platform's major version, while xunit.v3 is an alias (3.2.2 depends on exactly xunit.v3.mtp-v1, 4.0.2 on exactly xunit.v3.mtp-v2). xunit.v3 is not referenced. Its own dependencies xunit.v3.core.mtp-v2 and xunit.v3.assert must resolve to exactly 4.0.2, or slice-0-skeleton stops (plan Q11) |
 | xunit.runner.visualstudio, Microsoft.NET.Test.Sdk | not used (v4) | xunit.net (v3, Microsoft Testing Platform) | v4: removed; they serve VSTest mode only |
 | Testcontainers.PostgreSql | 4.16.0 | nuget.org | |
 | OpenTelemetry .NET | Extensions.Hosting 1.20.1, Exporter.OpenTelemetryProtocol 1.20.1, Instrumentation.AspNetCore 1.20.2, Instrumentation.Http 1.20.2; Npgsql.OpenTelemetry 10.0.3 | nuget.org | |
@@ -197,7 +209,8 @@ GitHub Pro (R7): Prashant Sharma proposes later updates himself, as pull request
 
 Written for the v4 approval (jobwright-app plan v2, Q10 and challenge V1), so it does not rest on a summary. Read from
 jobwright-app's recipe commit 06a65b0 (branch `feat/NEW-jobwright-slice-0`) on 2026-11-10: `web/package.json`,
-`web/pnpm-lock.yaml`, `web/pnpm-workspace.yaml` and every `*.csproj`.
+`web/pnpm-lock.yaml`, `web/pnpm-workspace.yaml` and every `*.csproj`. v5 corrects the two test-project rows and the
+xunit alternative (plan v3, Q12); everything else stands as approved with v4.
 
 **web/pnpm-lock.yaml, importer `.`**: every direct entry, against DEPENDENCIES.
 
@@ -236,8 +249,8 @@ dependency build script runs. slice 0 decides each build with strict builds on (
 |---|---|---|---|---|
 | Jobwright.Api | Microsoft.AspNetCore.OpenApi | 10.0.14 | listed | moved to the central pin |
 | Jobwright.Worker | Microsoft.Extensions.Hosting | 10.0.14 | listed (v3) | moved to the central pin |
-| Jobwright.Api.Tests | xunit.v3.mtp-v2 | 4.0.2 | not listed (v4 chooses xunit.v3) | replaced by xunit.v3 4.0.2; net8.0 to net10.0 (R4) |
-| Jobwright.ArchitectureTests | xunit.v3.mtp-v2 | 4.0.2 | not listed (v4 chooses xunit.v3) | replaced by xunit.v3 4.0.2; net8.0 to net10.0 (R4) |
+| Jobwright.Api.Tests | xunit.v3.mtp-v2 | 4.0.2 | listed (v5; v4 had chosen xunit.v3) | kept, moved to the central pin; net8.0 to net10.0 only (R4) |
+| Jobwright.ArchitectureTests | xunit.v3.mtp-v2 | 4.0.2 | listed (v5; v4 had chosen xunit.v3) | kept, moved to the central pin; net8.0 to net10.0 only (R4) |
 | Jobwright.Admin, Jobwright.SharedKernel, the four module and contracts projects | none | — | — | — |
 | dotnet-tools.json (repository root) | dotnet-ef | 10.0.14 | listed | — |
 | global.json (repository root) | `test.runner`: Microsoft.Testing.Platform | — | listed (SCAFFOLD) | adds the SDK pin 10.0.403 |
@@ -251,10 +264,59 @@ dependency build script runs. slice 0 decides each build with strict builds on (
   @dotenvx/dotenvx) out of the install (challenge V3).
 - @tailwindcss/postcss in place of @tailwindcss/turbopack: needs a PostCSS config and a change to the generated
   next.config.ts. Keeping turbopack ties Tailwind to Turbopack (challenge V9).
-- xunit.v3.mtp-v2 in place of xunit.v3: it needs no hand edit to the template's test projects, but it is a further
-  package name. Choosing xunit.v3 means slice-0-skeleton edits both test projects, and every later `dotnet new xunit3`
-  output gets the same edit.
+- xunit.v3 in place of xunit.v3.mtp-v2 (v4's choice; corrected in v5, plan Q12): it would not remove a package.
+  xunit.v3 4.0.2 is an empty package whose only dependency is exactly xunit.v3.mtp-v2 [4.0.2], so mtp-v2 and its
+  graph are in the lock files under either choice; the choice is only which name the projects reference. xunit.v3
+  hides the platform's major version (3.2.2 resolves xunit.v3.mtp-v1, 4.0.2 resolves xunit.v3.mtp-v2), so a one-line
+  bump could switch the platform unseen. The xunit3 template never writes it, so both test projects and every later
+  `dotnet new xunit3` output would need a hand edit that nothing enforces (plan v3, W1 and W2).
 
 **Follow-up in jobwright-app before slice-0-skeleton builds.** Plan v2's Q1 (R3) and the slice-0-skeleton bundle name
 xunit.v3.mtp-v2. Choosing xunit.v3 changes both again before the build (plan Q10). That is aidlc-plan's work in
 jobwright-app, not this file's.
+
+## v5 review lists
+
+Written for the v5 approval (jobwright-app plan v3, Q11 to Q13).
+
+**Transitive packages of the test projects (plan Q11).** Prashant Sharma decided on 2026-11-11 that xunit's and the
+platform's transitive packages are expected at slice-0-skeleton's step 2 CHECKPOINT. They are listed in the pull
+request and are not a stop. A stop is xunit.v3.core.mtp-v2 or xunit.v3.assert at any version other than 4.0.2, or a
+package in the xunit or platform graph that comes from outside Microsoft, xUnit or this list. Each row below was read
+from the scaffold's `obj/project.assets.json` of both test projects (net8.0, untracked, read 2026-11-11), with the
+package that brings it in. The ArchUnitNET rows were read from its nuspec, because slice-0-skeleton adds that
+reference. The net10.0 lock files that slice-0-skeleton writes are new: restore prunes packages the framework already
+provides, so they may hold fewer packages than this list (plan W6).
+
+| Package | Version | Brought in by | Plan Q11 | Note |
+|---|---|---|---|---|
+| xunit.v3.core.mtp-v2 | 4.0.2 | xunit.v3.mtp-v2 [4.0.2] | named | Any other version is a stop. Holds the build logic (`buildTransitive/`) |
+| xunit.v3.assert | 4.0.2 | xunit.v3.mtp-v2 [4.0.2]; TngTech.ArchUnitNET.xUnitV3 (>= 1.1.0) | named | Any other version is a stop |
+| xunit.analyzers | 2.2.0 | xunit.v3.mtp-v2 | named (xunit's graph) | |
+| xunit.v3.common, xunit.v3.extensibility.core, xunit.v3.runner.common, xunit.v3.runner.inproc.console | 4.0.2 | xunit.v3.core.mtp-v2 and each other, all exact [4.0.2] | xunit's graph | |
+| Microsoft.Testing.Platform, Microsoft.Testing.Platform.MSBuild, Microsoft.Testing.Extensions.TrxReport.Abstractions | 2.5.1 | xunit.v3.core.mtp-v2 | the platform's graph | Microsoft Testing Platform v2 |
+| Microsoft.Testing.Extensions.Telemetry | 2.5.1 | xunit.v3.core.mtp-v2 | named | Sends usage data to Microsoft by default; switched off by Q13 (below) |
+| Microsoft.ApplicationInsights | 2.23.0 | Microsoft.Testing.Extensions.Telemetry | named | The telemetry extension's transport |
+| Microsoft.Win32.Registry | 5.0.0 | xunit.v3.runner.common [5.0.0] | named | |
+| System.Security.AccessControl | 6.0.1 | xunit.v3.runner.common [6.0.1]; Microsoft.Win32.Registry (5.0.0, raised to 6.0.1) | named | |
+| Microsoft.Bcl.AsyncInterfaces | 6.0.0 | xunit.v3.common | named | |
+| System.Diagnostics.DiagnosticSource | 5.0.0 | Microsoft.ApplicationInsights | not named by Q11 | Microsoft's own, in the platform's graph; found in the assets file for this list |
+| System.Security.Principal.Windows | 5.0.0 | Microsoft.Win32.Registry | not named by Q11 | Microsoft's own, in the platform's graph; found in the assets file for this list |
+| TngTech.ArchUnitNET | 0.13.5 | TngTech.ArchUnitNET.xUnitV3 0.13.5 | ArchUnitNET's graph | The library behind the approved TngTech.ArchUnitNET.xUnitV3 (Pinned versions) |
+| System.Net.Http | 4.3.4 | TngTech.ArchUnitNET (nuspec) | named | |
+| System.Text.RegularExpressions | 4.3.1 | TngTech.ArchUnitNET (nuspec) | named | |
+
+**Tool telemetry off (plan Q13).** Prashant Sharma decided on 2026-11-11, from the plan's v3 challenge W3, that tool
+telemetry is switched off wherever jobwright-app runs tools. It adds no dependency.
+
+| Variable | Switches off | Source |
+|---|---|---|
+| `DOTNET_CLI_TELEMETRY_OPTOUT=1` | The .NET SDK's telemetry, and Microsoft Testing Platform's too | learn.microsoft.com/dotnet/core/tools/telemetry |
+| `TESTINGPLATFORM_TELEMETRY_OPTOUT=1` | Microsoft Testing Platform's telemetry extension (Microsoft.Testing.Extensions.Telemetry) | learn.microsoft.com/dotnet/core/testing/microsoft-testing-platform-telemetry |
+| `NEXT_TELEMETRY_DISABLED=1` | Next.js's telemetry | nextjs.org/telemetry |
+
+Where they are set: `scripts/check.sh` exports all three before any command (slice-0-skeleton step 8); `scripts/dev.sh`
+exports them too (slice-0-ci step 1); `.github/workflows/ci.yml` sets them in a top-level `env`, and each Dockerfile's
+build stage sets its own (slice-0-ci steps 3 and 4). A person's own shell is theirs to set. Why: these tools send
+usage data to their vendors by default, and the requirements send telemetry only to the owner's lab (requirements 9.1,
+"Telemetry: OpenTelemetry to the owner's lab collector").
