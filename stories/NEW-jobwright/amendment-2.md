@@ -4,7 +4,7 @@
 - **Asked of:** Prashant Sharma, as spec owner and risk owner, to approve the decisions below. Spec v4 is written only after that
 - **Record it:** On this file's commit, then in spec v4's Amendments line
 - **Tier and main risk:** 3: a gate that is said to block but does not, or a release token readable outside `main`
-- **Changed since the last version:** first version (2026-11-11)
+- **Changed since the last version:** v1 (2026-11-11); approved the same day, spec v4 written
 
 Raised by the workspace root, 2026-11-11, from three sources: decision 2 in
 [decisions-2026-11-11.md](decisions-2026-11-11.md) (taken by Claude at Prashant Sharma's instruction), jobwright-app's
@@ -99,4 +99,8 @@ Accepted ADRs are not edited. Each changed decision gets a new ADR that supersed
 
 | ID | Decision | Written into spec v4 |
 |---|---|---|
-| Amendment 2 | _awaiting approval_ | |
+| Amendment 2 | Approved as proposed ("amendment 2 approved", 2026-11-11, workspace-root session) | Rules (repositories, gates, the staging token); AC27's criterion and verification; E28, E31, E33; KL1, KL4; U-A2 |
+
+One wording follows from the approval and was not in the table above: AC27's criterion itself said "merging is not
+blocked on the current plan (KL1)", so spec v4 words it to match its verification row (blocks in `jobwright-app`, not
+in `jobwright-gitops`).

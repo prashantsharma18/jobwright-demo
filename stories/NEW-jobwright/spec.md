@@ -1,13 +1,13 @@
 <!-- aidlc template: spec -->
 # NEW-jobwright · Jobwright: the new system and its foundations · specification
 
-Spec owner: Prashant Sharma · Tier: 3 · Version: v3
+Spec owner: Prashant Sharma · Tier: 3 · Version: v4
 
 ## For the reviewer
 - **Asked of:** The spec owner, to approve the criteria and decide every edge case; a specialist reviews at Tier 3 (here the same person: known limit, intent answer I3)
 - **Record it:** The tracker is files in this workspace, so on this file's pull request: "Spec v3 approved by Prashant Sharma"
 - **Tier and main risk:** 3: one company seeing or changing another's data, or a weakness in signing people in or in releasing
-- **Changed since the last version:** v3, amendment 1, second part (2026-11-09, [design-amendment-1.md](design-amendment-1.md), decisions P1, P2, P4, R6, R7): one stored token commits staging's versions; no automatic image deletion; the promotion check requires one revision for all three images; Renovate off until GitHub Pro; known limits KL4 and KL5. Before that, v2, amendment 1 (2026-11-09, [amendment-1.md](amendment-1.md)): requirements 8, 9.2 and 9.4 move the repositories, images and CI to GitHub. New rules and known limits; AC23, AC27, E17 and E23 changed; E28 to E31 added, E32 dropped; the conflicts of E31 with AC23 and E30 resolved by the spec owner
+- **Changed since the last version:** v4, amendment 2 (2026-11-11, [amendment-2.md](amendment-2.md)): `jobwright-app` is public (E11), so its gates block a merge (branch protection, administrators included, no review) and the staging token becomes a secret of the `main`-only environment `staging-release`; `jobwright-gitops` stays private. The rules on repositories, gates and the staging token, AC27, E28, E31, KL1 and KL4 change; E33 is added; open question U-A2. Before that, v3, amendment 1, second part (2026-11-09, [design-amendment-1.md](design-amendment-1.md), decisions P1, P2, P4, R6, R7): one stored token commits staging's versions; no automatic image deletion; the promotion check requires one revision for all three images; Renovate off until GitHub Pro; known limits KL4 and KL5. Before that, v2, amendment 1 (2026-11-09, [amendment-1.md](amendment-1.md)): requirements 8, 9.2 and 9.4 move the repositories, images and CI to GitHub. New rules and known limits; AC23, AC27, E17 and E23 changed; E28 to E31 added, E32 dropped; the conflicts of E31 with AC23 and E30 resolved by the spec owner
 
 Sources: [intent v2](intent.md) and the
 [requirements v1.0](../../docs/requirements/2026-11-08-jobwright-requirements.md). Requirement IDs (FR-, NFR-) are
@@ -52,23 +52,27 @@ Non-goals (from intent "Not now"):
   Prashant Sharma, FR-NTF-03).
 - Formatting is enforced in CI for the web code (with Prettier, approved as a new dependency; design pins its
   version) and for the .NET code (set by Prashant Sharma, S5, requirements Q4).
-- Both repositories are private GitHub repositories; there is no local Git server (set by Prashant Sharma,
-  amendment 1).
+- `jobwright-gitops` is a private GitHub repository. `jobwright-app` is a public one (E11): its code, plans and CI
+  logs are world-readable, so neither repository holds a secret or personal data. There is no local Git server (set
+  by Prashant Sharma, amendment 1; amendment 2).
 - Argo CD in the local cluster reads `jobwright-gitops` from GitHub with a read-only deploy key; images live in GitHub
   Container Registry and the cluster pulls them with a pull secret; both are sealed secrets. The cluster holds no
   credential that can write to GitHub (set by Prashant Sharma, amendment 1, A4).
-- The section 8 gates run in GitHub Actions on every pull request and report pass or fail on it. Nothing blocks a
-  merge on the current plan: known limit KL1 (set by Prashant Sharma, amendment 1, A1).
+- The section 8 gates run in GitHub Actions on every pull request and report pass or fail on it. In `jobwright-app`,
+  branch protection on `main` requires every gate that runs on pull requests, binds administrators, and requires no
+  approving review (KL2). In `jobwright-gitops` nothing blocks a merge: known limit KL1 (set by Prashant Sharma,
+  amendment 1, A1; amendment 2).
 - Prashant Sharma pushes branches and opens every pull request a person or an agent writes; named automation opens
   the production promotion pull requests. Author and approver are the same person: known limit KL2 (set by Prashant
   Sharma, amendment 1, A2).
 - Renovate is off until the repositories move to GitHub Pro; until then Prashant Sharma updates dependencies himself.
   This sets aside requirement 9.4's "Renovate for updates" for now (set by Prashant Sharma, product owner, R7).
 - CI stores exactly one deployment secret: a fine-grained token limited to the `jobwright-gitops` repository with
-  `contents: write` only, kept as a repository secret in `jobwright-app`; `jobwright-app`'s run on `main` uses it to
-  commit staging's versions after a merge. Everything else uses GitHub's built-in token: read-only on pull requests;
+  `contents: write` only, kept as an environment secret of `jobwright-app`'s environment `staging-release`, which only
+  `main` may use; only the job of `jobwright-app`'s run on `main` that names that environment uses it, to commit
+  staging's versions after a merge. Everything else uses GitHub's built-in token: read-only on pull requests;
   on `main` of `jobwright-app`, only the write needed to push images to GitHub's registry. Any further stored secret is
-  a new decision (set by Prashant Sharma, amendment 1, E31, P1).
+  a new decision (set by Prashant Sharma, amendment 1, E31, P1; amendment 2).
 - No image is deleted automatically while GitHub's Container registry storage is free (set by Prashant Sharma, P2;
   E30).
 - What each role may do is the permissions table of section 2; in this increment that means only Settings is
@@ -311,8 +315,9 @@ AC27 Every applicable gate runs on every change (section 8; these gates: S11; A1
     When  GitHub Actions runs
     Then  lint, formatting (web and .NET, S5) and type checks, unit, integration against a real database, contract,
           browser, accessibility, budget, image scan and bill of materials each report pass or fail on the pull
-          request; a red or missing gate is visible on it; merging is not blocked on the current plan (KL1); the load
-          smoke test and the canary drill are increment 4's
+          request; a red or missing gate is visible on it; in `jobwright-app` it blocks the merge (amendment 2); in
+          `jobwright-gitops` merging is not blocked on the current plan (KL1); the load smoke test and the canary drill
+          are increment 4's
 
 AC28 It fits the machine (section 9.5) · `jobwright-gitops`
     Given the local cluster with every service of this increment running and idle, beside the owner's lab
@@ -408,9 +413,11 @@ E26 Personal data in this increment -> people's names and emails, and client add
    Prashant Sharma, as privacy reviewer)
 E27 The tenant command is run with a tenant name that already exists -> it is refused, naming the existing tenant,
    and nothing changes (added with AC29 after decision S4; decided by: Prashant Sharma, as spec owner)
-E28 A pull request whose checks have not all run (GitHub Actions down, or the month's included compute used up), or
-   have failed -> it is not merged until they pass; Prashant Sharma keeps this rule himself under KL1 (decided by:
-   Prashant Sharma, as spec owner and risk owner, 2026-11-09)
+E28 (v4) A pull request whose checks have not all run (GitHub Actions down, or, in `jobwright-gitops`, the month's
+   included compute used up), or have failed -> it is not merged until they pass. In `jobwright-app` branch protection
+   holds this, administrators included; turning the rule off, even for an outage, is a new decision recorded in the
+   story. In `jobwright-gitops` Prashant Sharma keeps it himself under KL1 (decided by: Prashant Sharma, as spec owner
+   and risk owner, 2026-11-09; v4 amendment 2, 2026-11-11)
 E29 The deploy key or the pull secret is revoked, expired or wrong -> Argo CD reports the application as unable to sync
    and changes nothing; running pods keep running; new pods wait; a release stops and rolls back by its analysis
    (E13); the key is replaced with a new sealed secret, never typed into the cluster (decided by: Prashant Sharma, as
@@ -419,21 +426,28 @@ E30 (v3) Registry storage -> no image is deleted automatically while GitHub's Co
    GitHub announces billing, Prashant Sharma deletes by hand the images that no environment, no rollout record and no
    `main` tag names; if a push fails because storage is full, staging does not change (decided by: Prashant Sharma, as
    release owner, 2026-11-09, P2)
-E31 (v3) A workflow asks for a deployment secret -> the only one is the staging token of the rule above, used only by
-   `jobwright-app`'s run on `main` to commit staging's versions; any other is a new decision. Pull-request runs use the
-   built-in token, read-only (decided by: Prashant Sharma, as risk owner, 2026-11-09, P1)
+E31 (v4) A workflow asks for a deployment secret -> the only one is the staging token of the rule above, used only by
+   the job of `jobwright-app`'s run on `main` that names the environment `staging-release`, to commit staging's
+   versions; a run on any other branch, or a job that does not name it, gets no secret; any other secret is a new
+   decision. Pull-request runs use the built-in token, read-only (decided by: Prashant Sharma, as risk owner,
+   2026-11-09, P1; v4 amendment 2, 2026-11-11)
 E32 Dropped (Prashant Sharma, 2026-11-09): under A2 there is no `aidlc-agent` account. The number is not reused.
+E33 A pull request to `jobwright-app` from a fork -> its workflows get the read-only token and no secret; if GitHub
+   offers the setting (U-A2), they wait until Prashant Sharma approves the run, for every outside contributor; nothing
+   from a fork is merged until a pull request with the same change, pushed by Prashant Sharma, has passed (decided by:
+   Prashant Sharma, as risk owner, 2026-11-11, amendment 2)
 
-Known limits (amendment 1, accepted by Prashant Sharma, 2026-11-09):
+Known limits (amendment 1, accepted by Prashant Sharma, 2026-11-09; KL1 and KL4 narrowed by amendment 2, 2026-11-11):
 - KL1 (A1): on GitHub Free, private repositories have no protected branches, required reviews or code owners; the
-  gates report but block nothing. Moving to GitHub Pro turns enforcement on.
+  gates report but block nothing. This holds for `jobwright-gitops` only; `jobwright-app` is public and its gates
+  block (amendment 2). Moving to GitHub Pro turns enforcement on in `jobwright-gitops`.
 - KL2 (A2): Prashant Sharma authors and merges his own pull requests; GitHub records no approval for them, because an
   author cannot approve his own. As intent I3.
 - KL3 (A4): the rollout records AC23 checks are written by Prashant Sharma in each promotion pull request; the cluster
   writes nothing to GitHub.
-- KL4 (P1): the staging token is a repository secret, so any workflow in `jobwright-app` could read it, on any branch
-  (only Prashant Sharma pushes there, A2); and it can write production's versions in `jobwright-gitops` too, since on
-  Free nothing stops it.
+- KL4 (P1; v4): the staging token can write production's versions in `jobwright-gitops` too, since on Free nothing
+  protects that repository's `main`. (Its first half, a repository secret any branch could read, no longer applies:
+  amendment 2 keeps it in the `main`-only environment `staging-release`.)
 - KL5 (R6, for the lab): the cluster's image pull secret is a classic token with `read:packages`, which reaches every
   package the account can read; it is the narrowest GitHub offers for packages.
 
@@ -458,7 +472,7 @@ Test levels are proposed; `aidlc-plan` names each test.
 | AC23 | A GitHub Actions check in `jobwright-gitops` that reads the rollout records, with fixture pull requests |
 | AC25 | CI runs the previous release's integration tests against the new schema |
 | AC26 | CI budget check |
-| AC27 | Every gate reports on fixture pull requests in GitHub Actions; one of each made red on purpose; enforcement after GitHub Pro (KL1) |
+| AC27 | Every gate reports on fixture pull requests in GitHub Actions; one of each made red on purpose; in `jobwright-app` each red gate is shown to block the merge; in `jobwright-gitops` enforcement waits for GitHub Pro (KL1) |
 | AC28 | A measurement script on the local cluster; a check of the port bindings |
 | AC29 | Integration test of the tenant command against the local cluster's identity provider and database; the invitation read from the mail stand-in |
 
@@ -492,15 +506,17 @@ All by Prashant Sharma, 2026-11-08. Each is written into the rules and criteria 
 | R6 | Accepted for the lab (KL5) |
 | R7 | Renovate off until GitHub Pro; dependencies updated by hand |
 | Tier 3 review of v2 | Security, privacy and release changes of amendment 1 reviewed by Prashant Sharma, 2026-11-09, under known limit I3 |
+| Amendment 2 | `jobwright-app` public (E11), its gates required on `main` with administrators bound and no review, the staging token in the `main`-only environment `staging-release`; `jobwright-gitops` private; AC27, E28, E31, KL1, KL4 changed; E33 added (Prashant Sharma, 2026-11-11; the decisions were taken by Claude at his instruction in `decisions-2026-11-11.md`, and he approved the amendment) |
 
 ## Open questions
 | ID | Question | Owner | Blocks |
 |---|---|---|---|
 | S9 | Check that "Apex Facility Services" and "Brightline Services" are not real businesses. | Prashant Sharma | the demo, not this spec |
+| U-A2 | Does a personal account's public repository offer "Require approval for all external contributors" for fork pull-request runs? If not, E33 keeps only its first and last parts | Prashant Sharma, in jobwright-app's Actions settings | E33's wording only |
 
 ## Definition of Ready (Tier 3)
 - [x] Clear actor, observable behaviour, known constraints, examples, testable criteria.
-- [x] Tier 2+: non-goals written (done); every edge case decided (E1 to E31, E32 dropped, 2026-11-09); contract changes agreed
+- [x] Tier 2+: non-goals written (done); every edge case decided (E1 to E31, E32 dropped, 2026-11-09; E33, 2026-11-11); contract changes agreed
       with consumers (no other team; the cross-repository contract is defined in design); questions owned (done:
       every open question has an owner).
 - [x] Tier 3: specialist reviewed: security, privacy and release reviewed for this spec by Prashant Sharma on
@@ -516,6 +532,9 @@ All by Prashant Sharma, 2026-11-08. Each is written into the rules and criteria 
       v3: Prashant Sharma reviewed P1's stored staging token (fine-grained, `jobwright-gitops` only, `contents: write`,
       a repository secret in `jobwright-app`) and R6's classic pull token, and accepted them as known limits KL4 and
       KL5, on 2026-11-09, under the known limit of intent answer I3.
+      v4: amendment 2's security changes (required checks, the `main`-only environment for the staging token, fork
+      pull requests) were approved by Prashant Sharma on 2026-11-11, under the known limit of intent answer I3. That
+      approval is the only review: no separate security review was held, and the decisions were drafted by Claude.
 
 Every item above is met, as checked on 2026-11-09. Granting readiness and approving the spec are the spec owner's.
 
@@ -523,6 +542,7 @@ Every item above is met, as checked on 2026-11-09. Granting readiness and approv
 Spec v1 approved by Prashant Sharma on 2026-11-08. Reviewed by Prashant Sharma (security, privacy, release; known limit, intent answer I3).
 Spec v2 approved by Prashant Sharma on 2026-11-09 (recorded at his instruction in the design session). Reviewed by Prashant Sharma (security, privacy, release; known limit, intent answer I3).
 Spec v3 approved by Prashant Sharma on 2026-11-09 (recorded at his instruction). Reviewed by Prashant Sharma on 2026-11-09 (security: P1's staging token and R6's pull token, accepted as KL4 and KL5; known limit, intent answer I3).
+Spec v4 approved by Prashant Sharma on 2026-11-11 ("amendment 2 approved", in the workspace-root session; this file carries amendment 2's proposed text, with AC27's criterion worded to match its verification row). Known limit, intent answer I3.
 Amendments: 2026-11-09 · rules (new: GitHub repositories, deploy key, pull secret, gates in GitHub Actions, who opens
 pull requests, CI tokens and their writes), AC23, AC27, E17, E23, E28 to E31 (E32 dropped), E30's fallback, known
 limits KL1 to KL3 · requirements 8, 9.2 and 9.4 changed to
@@ -531,3 +551,6 @@ Amendments: 2026-11-09 (v3) · rules (the staging token; Renovate off, setting a
 no automatic image deletion), AC23 (one revision for all three images; staging right after publish), E30, E31, known
 limits KL4 and KL5 · found by the design amendment's challenge (C14, C16, C17, C21) ·
 [design-amendment-1.md](design-amendment-1.md) · decided by Prashant Sharma (product owner, spec owner, risk owner)
+Amendments: 2026-11-11 (v4) · rules (repositories, gates, the staging token), AC27, E28, E31, E33 (new), known limits
+KL1 and KL4 narrowed, open question U-A2 · found by E11 (jobwright-app made public) and security-review S2 ·
+[amendment-2.md](amendment-2.md) · decided by Prashant Sharma (product owner, spec owner, risk owner)
