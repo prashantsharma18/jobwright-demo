@@ -48,3 +48,13 @@ After it merges, run `python3 scripts/story_status.py NEW-jobwright --write` at 
 
 A new session started in `jobwright-gitops/`, beginning with `aidlc-start`. Its aidlc-plan writes part 2's index in
 fix A's layout (stage rows and a PINS line).
+
+## Results of the by-hand steps (reported by Prashant Sharma, 2026-11-11)
+
+| Step | Result |
+|---|---|
+| jobwright-gitops on GitHub | Private repository created; `main` pushed over SSH as prashantsharma18 (the clone needed jobwright-app's per-repository `core.sshCommand`: the machine's default key logs in as another account); Actions may create and approve pull requests, default token read-only |
+| Branch protection, jobwright-app `main` | Applied; `enforce_admins` true |
+| Environment `staging-release` | Limited to `main`; holds `STAGING_TOKEN`; no repository secret exists |
+| AC27 drill, pull request #3 | A deliberate type error made lint, build, browser and budget red (setup and test green); `gh pr merge` refused: "the base branch policy prohibits the merge". Closed unmerged, branch deleted. Open: confirm the reported check names equal the required contexts (`gh pr view 3 --json statusCheckRollup`); the first green pull request being mergeable is the last proof |
+| U-A2, fork approval | Currently "Require approval for first-time contributors" (GitHub's default); whether "all external contributors" is offered: not yet reported |
