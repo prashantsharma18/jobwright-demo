@@ -26,7 +26,7 @@ Branch `docs/NEW-jobwright-part-1-decisions`. Prompt for a new session started i
 > the `aidlc-onboard (prepare)` and `aidlc-onboard (confirm)` rows, add `aidlc-plan`, `aidlc-build`, `aidlc-verify`,
 > `aidlc-review` and `merged` rows taken from the `slice 0` cell (merged: done, pull request #1, d612731), keep the
 > long cell as history below the table, and make PINS read `spec v3 · plan v4`; (2) AGENTS.md: decision 1;
-> (3) onboard-confirm.md: record decisions 1 to 3 as dispositions; (4) once spec v4 exists, apply
+> (3) onboard-confirm.md: record decisions 1 to 3 as dispositions; (4) apply
 > ../stories/NEW-jobwright/amendment-2.md's rows for jobwright-app: AGENTS.md's KL1 and STAGING_TOKEN wording, and
 > PINS re-pinned to `spec v4 · plan v4` with a note that slice 0 is unaffected. Run the commands AGENTS.md lists.
 > Stage explicit paths only (leave .claude/settings.json alone). Do not push.
@@ -56,5 +56,6 @@ fix A's layout (stage rows and a PINS line).
 | jobwright-gitops on GitHub | Private repository created; `main` pushed over SSH as prashantsharma18 (the clone needed jobwright-app's per-repository `core.sshCommand`: the machine's default key logs in as another account); Actions may create and approve pull requests, default token read-only |
 | Branch protection, jobwright-app `main` | Applied; `enforce_admins` true |
 | Environment `staging-release` | Limited to `main`; holds `STAGING_TOKEN`; no repository secret exists |
-| AC27 drill, pull request #3 | A deliberate type error made lint, build, browser and budget red (setup and test green); `gh pr merge` refused: "the base branch policy prohibits the merge". Closed unmerged, branch deleted. Open: confirm the reported check names equal the required contexts (`gh pr view 3 --json statusCheckRollup`); the first green pull request being mergeable is the last proof |
-| U-A2, fork approval | Currently "Require approval for first-time contributors" (GitHub's default); whether "all external contributors" is offered: not yet reported |
+| AC27 drill, pull request #3 | A deliberate type error made lint, build, browser and budget red (setup and test green); `gh pr merge` refused: "the base branch policy prohibits the merge". Closed unmerged, branch deleted. Reported check names are exactly `setup`, `lint`, `test`, `build`, `browser`, `budget`, equal to the required contexts. Last proof: the first green pull request merges |
+| U-A2, fork approval | Answered: "Require approval for all external contributors" is offered on the personal public repository and was selected (was GitHub's default, first-time contributors). E33 stands as written |
+| Found: global git hooks | `core.hooksPath=/home/psharma/lab/git-hooks` is set globally (the owner's lab; its branch-name warning shows `PAY-142`, not a jobwright file). Git then ignores each clone's `.git/hooks`, so the planned `scripts/install-hooks.sh` (E23 v2 pre-push gitleaks, ADR 0011) must set a local `core.hooksPath` or E23's push check never runs; for the plan of the slice that builds it |

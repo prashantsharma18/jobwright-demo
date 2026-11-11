@@ -512,7 +512,7 @@ All by Prashant Sharma, 2026-11-08. Each is written into the rules and criteria 
 | ID | Question | Owner | Blocks |
 |---|---|---|---|
 | S9 | Check that "Apex Facility Services" and "Brightline Services" are not real businesses. | Prashant Sharma | the demo, not this spec |
-| U-A2 | Does a personal account's public repository offer "Require approval for all external contributors" for fork pull-request runs? If not, E33 keeps only its first and last parts | Prashant Sharma, in jobwright-app's Actions settings | E33's wording only |
+| U-A2 | Answered 2026-11-11 by Prashant Sharma: the setting is offered and selected; E33 stands as written | Prashant Sharma | nothing |
 
 ## Definition of Ready (Tier 3)
 - [x] Clear actor, observable behaviour, known constraints, examples, testable criteria.

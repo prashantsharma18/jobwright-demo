@@ -53,7 +53,7 @@ VERIFY     Provider and consumer contract tests in jobwright-app CI (ADR 0004); 
 UNKNOWNS   U1 client address: owner Prashant Sharma, answer at the end of part 2, blocks AC16 (part 3 and 4 slices only)
            U2 TraefikService routing and stickiness: owner Prashant Sharma, answer at the end of part 2, blocks AC20, AC21
            (U6, U7, U12, U14 answered by spec v2 and v3: A2, A4, A1, P1)
-           U-A2 fork-run approval setting on a personal public repository: owner Prashant Sharma, his settings page, changes E33's wording only
+           U-A2 fork-run approval setting: answered 2026-11-11, offered and selected; E33 stands
            (v3: U15's budget half is answered for jobwright-app: standard runners are free on a public repository; it stays for jobwright-gitops)
            U15 Actions minutes per pull request and per main-branch run: owner Prashant Sharma, measured in each slice 0, blocks
                the plan's monthly estimate (ADR 0011)
