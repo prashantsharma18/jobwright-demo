@@ -5,7 +5,8 @@ FOUND IN   NEW-jobwright, after part 1 (jobwright-app slice 0) merged through pu
 FOUND BY   python3 scripts/story_status.py NEW-jobwright --write, run by Prashant Sharma, 2026-11-11
 OWNER      Prashant Sharma (owner of the workspace root, both repositories and the aidlc set-up)
 EFFECT     status.md shows part 1 as "waiting" although it is merged; --check-release can never pass for this story
-STATUS     open: the owner chooses fix A, B or both
+STATUS     decided 2026-11-11: A for this story, B raised with aidlc (Claude at Prashant Sharma's instruction;
+           stories/NEW-jobwright/decisions-2026-11-11.md, decision 4)
 ```
 
 ## What happened
