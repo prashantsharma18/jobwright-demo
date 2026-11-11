@@ -26,7 +26,10 @@ Branch `docs/NEW-jobwright-part-1-decisions`. Prompt for a new session started i
 > the `aidlc-onboard (prepare)` and `aidlc-onboard (confirm)` rows, add `aidlc-plan`, `aidlc-build`, `aidlc-verify`,
 > `aidlc-review` and `merged` rows taken from the `slice 0` cell (merged: done, pull request #1, d612731), keep the
 > long cell as history below the table, and make PINS read `spec v3 · plan v4`; (2) AGENTS.md: decision 1;
-> (3) onboard-confirm.md: record decisions 1 to 3 as dispositions. Run the commands AGENTS.md lists. Do not push.
+> (3) onboard-confirm.md: record decisions 1 to 3 as dispositions; (4) once spec v4 exists, apply
+> ../stories/NEW-jobwright/amendment-2.md's rows for jobwright-app: AGENTS.md's KL1 and STAGING_TOKEN wording, and
+> PINS re-pinned to `spec v4 · plan v4` with a note that slice 0 is unaffected. Run the commands AGENTS.md lists.
+> Stage explicit paths only (leave .claude/settings.json alone). Do not push.
 
 After it merges, run `python3 scripts/story_status.py NEW-jobwright --write` at the root. Part 1 should read
 `merged` with no needs.
