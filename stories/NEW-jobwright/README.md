@@ -34,7 +34,7 @@ Each step's pull request merges before the next starts.
 | aidlc-onboard (confirm) | jobwright-app | done (merged by Prashant Sharma through pull request #2, merge commit f99b998, 2026-11-11; every AGENTS.md command confirmed, docs/codebase-map.md written; its three decisions taken in `decisions-2026-11-11.md`) |
 | decisions after part 1 (`decisions-2026-11-11.md`) | workspace root | done (2026-11-11, Claude at Prashant Sharma's instruction) |
 | part 1 follow-up: part index to fix A, definition of done, dispositions | jobwright-app | to do |
-| aidlc-specify (amendment 2: branch protection and a `main`-only environment for jobwright-app; S2, E11), then aidlc-design (ADR 0011) | workspace root | aidlc-specify done (amendment 2 approved by Prashant Sharma, 2026-11-11; spec v4); aidlc-design: `design-amendment-2.md` and ADR 0014 drafted, awaiting his approval |
+| aidlc-specify (amendment 2: branch protection and a `main`-only environment for jobwright-app; S2, E11), then aidlc-design (ADR 0011) | workspace root | aidlc-specify done (amendment 2 approved by Prashant Sharma, 2026-11-11; spec v4); aidlc-design done (design amendment 2, ADR 0014, `new-system.md` v7, coordination plan v3 approved by Prashant Sharma, 2026-11-11) |
 | aidlc-onboard (prepare) | jobwright-gitops | done (2026-11-09, merged to main as 9e91986) |
 | slice 0 | jobwright-gitops | to do |
 | aidlc-onboard (confirm) | jobwright-gitops | to do |

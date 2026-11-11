@@ -4,7 +4,7 @@
 - **Asked of:** The tech lead or architect, to approve the parts, their order and the contract versions with the design; each part's own code owners approve its pull request
 - **Record it:** On the work item with this plan's version and commit; each part in its own pull request
 - **Tier and main risk:** 3: parts that land out of order, so a release depends on a platform piece that is not there
-- **Changed since the last version:** v3 (2026-11-11, design amendment 2, spec v4): jobwright-app public with required checks and the `staging-release` environment; OUTSIDE, UNKNOWNS and APPROVALS updated. Before that, v2 (2026-11-09, design amendment 1, spec v3): GitHub replaces Gitea and the local registry; Released versions v2 and Release ledger v2; OUTSIDE, UNKNOWNS, ROLLBACK and APPROVALS updated
+- **Changed since the last version:** v3 (2026-11-11, design amendment 2, spec v4; approved by Prashant Sharma the same day): jobwright-app public with required checks and the `staging-release` environment; OUTSIDE, UNKNOWNS and APPROVALS updated. Before that, v2 (2026-11-09, design amendment 1, spec v3): GitHub replaces Gitea and the local registry; Released versions v2 and Release ledger v2; OUTSIDE, UNKNOWNS, ROLLBACK and APPROVALS updated
 
 ```text
 OUTCOME    Increment 1 of Jobwright (spec v1, AC1 to AC29) on a new system of two repositories. Tier 3 (security,

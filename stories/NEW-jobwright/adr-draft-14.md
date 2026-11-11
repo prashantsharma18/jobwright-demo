@@ -6,7 +6,7 @@
 - **Tier and main risk:** 3: the required-check list drifting from the jobs CI runs, so a pull request waits forever or a new gate is not required
 - **Changed since the last version:** first version
 
-Status: Proposed (design amendment 2, 2026-11-11); accepted when Prashant Sharma approves design amendment 2
+Status: Accepted at design approval (approved by Prashant Sharma, decider, 2026-11-11, design amendment 2)
 Decider: Prashant Sharma (tech lead) · Agreed: Prashant Sharma · Work item: NEW-jobwright · Tier: 3
 Supersedes in part: 0011 (CI on GitHub): its "repository secret" for the staging token, its Consequence that every
 check stops when the month's compute is spent (now `jobwright-gitops` only), and its "Revisit on the move to GitHub

@@ -149,7 +149,8 @@ APPROVED v5  Prashant Sharma (tech lead, design approver), 2026-11-11, recorded 
 APPROVED v6  Prashant Sharma (tech lead, design approver), 2026-11-11, recorded at Prashant Sharma's instruction: every
              change marked v6 above (dev.sh's ports 127.0.0.1:15432, 18080, 15080 and 15300 in COMMANDS; the note on
              Windows' dynamic port exclusions)
-APPROVED v7  ______ (Prashant Sharma, tech lead): the changes marked v7 above, with design amendment 2
+APPROVED v7  Prashant Sharma (tech lead, design approver), 2026-11-11, recorded at his instruction: the changes marked v7
+             above, with design amendment 2
 ```
 
 ## Pinned versions

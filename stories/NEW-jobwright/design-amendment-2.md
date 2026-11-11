@@ -23,4 +23,5 @@ stands.
 
 Unknowns: U-A2 (owner Prashant Sharma, his settings page; changes E33's wording only).
 
-APPROVED     ______ (Prashant Sharma, tech lead)
+APPROVED     Prashant Sharma (tech lead), 2026-11-11 ("design amendment 2 approved", workspace-root session): ADR 0014,
+             `new-system.md` v7, coordination plan v3 and the threat-model rows above
