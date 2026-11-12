@@ -30,10 +30,10 @@ Each step's pull request merges before the next starts.
 | create the repositories the design's LAYOUT names (a person) | workspace root | done (Prashant Sharma, 2026-11-09: jobwright-app, jobwright-gitops) |
 | aidlc-onboard (add the repositories to WORKSPACE.md and the deny rules) | workspace root | done (2026-11-09; deny rules already in `.claude/settings.json`) |
 | aidlc-onboard (prepare) | jobwright-app | done (2026-11-09, merged to main as aba6d07) |
-| slice 0 | jobwright-app | done (merged by Prashant Sharma through pull request #1, merge commit d612731, 2026-11-11; plan v4, commit 6936a41; `new-system.md` v6; see jobwright-app plans/NEW-jobwright/part-1/README.md; `status.md` cannot show it yet, see feedback/2026-11-11-story-status-part-index) |
+| slice 0 | jobwright-app | done (merged by Prashant Sharma through pull request #1, merge commit d612731, 2026-11-11; plan v4, commit 6936a41; `new-system.md` v6; see jobwright-app plans/NEW-jobwright/part-1/README.md; `status.md` reads it since pull request #4, fix A of feedback/2026-11-11-story-status-part-index) |
 | aidlc-onboard (confirm) | jobwright-app | done (merged by Prashant Sharma through pull request #2, merge commit f99b998, 2026-11-11; every AGENTS.md command confirmed, docs/codebase-map.md written; its three decisions taken in `decisions-2026-11-11.md`) |
 | decisions after part 1 (`decisions-2026-11-11.md`) | workspace root | done (2026-11-11, Claude at Prashant Sharma's instruction) |
-| part 1 follow-up: part index to fix A, definition of done, dispositions | jobwright-app | to do |
+| part 1 follow-up: part index to fix A, definition of done, dispositions | jobwright-app | done (merged by Prashant Sharma through pull request #4, merge commit bc81899, 2026-11-12; six checks green under the new protection; part 1 re-pinned to spec v4, unaffected) |
 | aidlc-specify (amendment 2: branch protection and a `main`-only environment for jobwright-app; S2, E11), then aidlc-design (ADR 0011) | workspace root | aidlc-specify done (amendment 2 approved by Prashant Sharma, 2026-11-11; spec v4); aidlc-design done (design amendment 2, ADR 0014, `new-system.md` v7, coordination plan v3 approved by Prashant Sharma, 2026-11-11) |
 | aidlc-onboard (prepare) | jobwright-gitops | done (2026-11-09, merged to main as 9e91986) |
 | slice 0 | jobwright-gitops | to do |

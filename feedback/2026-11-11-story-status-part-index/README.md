@@ -7,6 +7,8 @@ OWNER      Prashant Sharma (owner of the workspace root, both repositories and t
 EFFECT     status.md shows part 1 as "waiting" although it is merged; --check-release can never pass for this story
 STATUS     decided 2026-11-11: A for this story, B raised with aidlc (Claude at Prashant Sharma's instruction;
            stories/NEW-jobwright/decisions-2026-11-11.md, decision 4)
+           part 1: fixed by jobwright-app pull request #4 (bc81899, 2026-11-12); part 2's index already uses fix A's layout
+           (draft on feat/NEW-jobwright-slice-0); B still open with aidlc, owned by Prashant Sharma
 ```
 
 ## What happened
