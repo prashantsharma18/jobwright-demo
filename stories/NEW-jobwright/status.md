@@ -3,7 +3,7 @@
 | Part | Repository | Reached | Pins | Needs |
 |---|---|---|---|---|
 | 1 | jobwright-app | merged | spec v4 · plan v4 | - |
-| 2 | jobwright-gitops | aidlc-build | spec v4 · plan v1 | - |
+| 2 | jobwright-gitops | merged | spec v4 · plan v1 | - |
 | 3 | jobwright-app | waiting | - | - |
 | 4 | jobwright-gitops | waiting | - | - |
 
