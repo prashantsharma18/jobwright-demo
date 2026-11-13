@@ -36,6 +36,7 @@ Each step's pull request merges before the next starts.
 | part 1 follow-up: part index to fix A, definition of done, dispositions | jobwright-app | done (merged by Prashant Sharma through pull request #4, merge commit bc81899, 2026-11-12; six checks green under the new protection; part 1 re-pinned to spec v4, unaffected) |
 | aidlc-specify (amendment 2: branch protection and a `main`-only environment for jobwright-app; S2, E11), then aidlc-design (ADR 0011) | workspace root | aidlc-specify done (amendment 2 approved by Prashant Sharma, 2026-11-11; spec v4); aidlc-design done (design amendment 2, ADR 0014, `new-system.md` v7, coordination plan v3 approved by Prashant Sharma, 2026-11-11) |
 | aidlc-onboard (prepare) | jobwright-gitops | done (2026-11-09, merged to main as 9e91986) |
+| aidlc-design (amendment 3: part 2's root changes C1, C2, C3, C5, C6, decided by Prashant Sharma 2026-11-13; ADR 0015, `new-system.md` v8, coordination plan v4, `design-amendment-3.md`) | workspace root | done (approved by Prashant Sharma, 2026-11-13, recorded at his instruction) |
 | slice 0 | jobwright-gitops | to do |
 | aidlc-onboard (confirm) | jobwright-gitops | to do |
 | aidlc-release | workspace root | to do |

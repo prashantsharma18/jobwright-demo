@@ -1,10 +1,10 @@
-# Coordination plan · NEW-jobwright · Jobwright: the new system and its foundations · v3
+# Coordination plan · NEW-jobwright · Jobwright: the new system and its foundations · v4
 
 ## For the reviewer
 - **Asked of:** The tech lead or architect, to approve the parts, their order and the contract versions with the design; each part's own code owners approve its pull request
 - **Record it:** On the work item with this plan's version and commit; each part in its own pull request
 - **Tier and main risk:** 3: parts that land out of order, so a release depends on a platform piece that is not there
-- **Changed since the last version:** v3 (2026-11-11, design amendment 2, spec v4; approved by Prashant Sharma the same day): jobwright-app public with required checks and the `staging-release` environment; OUTSIDE, UNKNOWNS and APPROVALS updated. Before that, v2 (2026-11-09, design amendment 1, spec v3): GitHub replaces Gitea and the local registry; Released versions v2 and Release ledger v2; OUTSIDE, UNKNOWNS, ROLLBACK and APPROVALS updated
+- **Changed since the last version:** v4 (2026-11-13, design amendment 3, from part 2's root changes C1, C2, C3, C5, C6; approved by Prashant Sharma the same day): U1 and U2 move to part 4 with their scripts and U9 is answered (C1); bootstrap/ holds the cluster, Sealed Secrets, Argo CD's credential and Argo CD, while the certificate authority and the pull secrets move to part 4 (C2); 127.0.0.1:6550 joins Jobwright's ports (C3, ADR 0015); part 4's AppProject comes before part 3's release job (C5); kubectl 1.37.x (C6). Before that, v3 (2026-11-11, design amendment 2, spec v4; approved by Prashant Sharma the same day): jobwright-app public with required checks and the `staging-release` environment; OUTSIDE, UNKNOWNS and APPROVALS updated. Before that, v2 (2026-11-09, design amendment 1, spec v3): GitHub replaces Gitea and the local registry; Released versions v2 and Release ledger v2; OUTSIDE, UNKNOWNS, ROLLBACK and APPROVALS updated
 
 ```text
 OUTCOME    Increment 1 of Jobwright (spec v1, AC1 to AC29) on a new system of two repositories. Tier 3 (security,
@@ -20,7 +20,8 @@ PARTS      #  Repository        Owner            Change                         
            3  jobwright-app     Prashant Sharma  increment 1 criteria (app)           none  parts 1, 2                 revert slice; Rollouts abort  waiting
            4  jobwright-gitops  Prashant Sharma  increment 1 criteria (platform)      none  part 2; part 3 first image  revert slice; Argo CD sync    waiting
            (Part 3 proves AC1 to AC19, AC22, AC24 to AC27 and AC29; part 4 proves AC16, AC20 to AC24, AC27 and AC28.)
-           (Part 2's slice 0 also gives the owner the scripts that measure U1, U2, U7 and U9.)
+           (Part 2's slice 0 also gives the owner the script that measures U9; part 4's Traefik and Rollouts slices, those of U1 and U2 (v4, C1).)
+           (Part 3's release job also waits for part 4's AppProject slice (v4, C5; see ORDER).)
            (Status is derived: run the story status command named in WORKSPACE.md; it reads each part's index and writes `status.md` beside this plan.)
 TRACKING   Branch feat/NEW-jobwright-<part> in each repository (slice 0: feat/NEW-jobwright-slice-0); pull request title
            "[NEW-jobwright] part <n> of 4: <what>". Parts 1 and 3 are both in jobwright-app, so its indexes are
@@ -33,10 +34,15 @@ OUTSIDE    Prashant Sharma, by hand, never an agent: create both repositories (i
            contents: write, at most one year) as STAGING_TOKEN in jobwright-app's environment
            staging-release (v3); create the cluster's pull token
            (classic, read:packages only, at most one year) and the read-only deploy key of jobwright-gitops; put both
-           expiry dates in the calendar; grant nothing else; run bootstrap/ once (k3d cluster, local certificate
-           authority, Argo CD's repository credential and the pull secrets as sealed secrets, sealed-secrets key export);
-           run scripts/install-hooks.sh in each clone; run the tenant command (Apex, Brightline and the probe tenant);
-           run the measurements of U1, U2 and U9 with the scripts part 2 provides.
+           expiry dates in the calendar; grant nothing else; run bootstrap/ once (v4, C2: the k3d cluster with the
+           Kubernetes API on 127.0.0.1:6550, Sealed Secrets and its key export, Argo CD's repository credential as a
+           sealed secret, Argo CD); seal the local certificate authority and the pull secrets with part 4's slices that
+           first need them; run scripts/install-hooks.sh in each clone; run the tenant command (Apex, Brightline and the
+           probe tenant); run the measurement of U9 with the script part 2 provides (done 2026-11-13), and those of U1
+           and U2 with the scripts part 4's Traefik and Rollouts slices provide.
+           (v4) Install kubectl 1.37.x under ~/.local/opt/kubectl-1.37.x for Jobwright's scripts, leaving the lab's
+           /usr/local/bin/kubectl (v1.36.0) unchanged (C6). In jobwright-gitops's AGENTS.md, the ports line gains 6550
+           (the Kubernetes API, 127.0.0.1), with aidlc-onboard (confirm) (C3, ADR 0015).
            (v3, amendment 2) jobwright-app is public (E11), jobwright-gitops private. In jobwright-app: a branch protection rule
            on `main` requiring setup, lint, test, build, browser and budget, "Do not allow bypassing" on, no review; the
            environment `staging-release` limited to `main`; STAGING_TOKEN created there as an environment secret, never a
@@ -46,18 +52,21 @@ ORDER      Contract first: api/contract/openapi.yaml lands in part 3's first sli
            API code. Parts 1 and 2 in any order; aidlc-onboard (confirm) in each repository after its slice 0.
            Part 3 before part 4's release slices: part 4 deploys the images part 3 builds. Part 4's platform
            slices (Traefik, Rollouts, Prometheus, Keycloak) may run alongside part 3.
+           (v4, C5) Part 4's AppProject slice, which limits what platform/ and environments/ may deploy, merges before
+           part 3's release job holds STAGING_TOKEN; until then risk R-k is open (design amendment 3).
            Flags on: none. Feature flags are deferred (ADR 0007); a new system exposes nothing before its release.
 VERIFY     Provider and consumer contract tests in jobwright-app CI (ADR 0004); oasdiff against the last release tag
            from the second release on; the staging release drill (AC21) with a healthy and a deliberately failing
            version; checks/promotion with fixture pull requests (AC23); AC28's memory and port script.
-UNKNOWNS   U1 client address: owner Prashant Sharma, answer at the end of part 2, blocks AC16 (part 3 and 4 slices only)
-           U2 TraefikService routing and stickiness: owner Prashant Sharma, answer at the end of part 2, blocks AC20, AC21
+UNKNOWNS   U1 client address: owner Prashant Sharma, answer in part 4's Traefik slice (v4, C1), blocks AC16 (part 3 and 4 slices only)
+           U2 TraefikService routing and stickiness: owner Prashant Sharma, answer in part 4's Rollouts slice (v4, C1), blocks AC20, AC21
            (U6, U7, U12, U14 answered by spec v2 and v3: A2, A4, A1, P1)
            U-A2 fork-run approval setting: answered 2026-11-11, offered and selected; E33 stands
            (v3: U15's budget half is answered for jobwright-app: standard runners are free on a public repository; it stays for jobwright-gitops)
            U15 Actions minutes per pull request and per main-branch run: owner Prashant Sharma, measured in each slice 0, blocks
                the plan's monthly estimate (ADR 0011)
-           U9 measured memory: owner Prashant Sharma, answer at the end of part 2, blocks part 4's platform slices
+           U9 measured memory: answered 2026-11-13 (v4, C1): 1,746,025,841 bytes idle (k3s, Argo CD, Sealed Secrets), under
+               6 GB; re-measured after every platform change (part 2's progress-slice-0-bootstrap.md, step 8)
            (U3, U4, U5, U8 are answered by documentation or the product owner before the slices that need them; design note)
 ROLLBACK   Part 1, 2: revert the merge; nothing is deployed. Part 3: each slice reverts alone; a released slice rolls
            back by Rollouts abort, then the gitops commit is reverted; schema changes are expand-only, so the previous
