@@ -4,7 +4,16 @@
 |---|---|---|---|---|
 | 1 | jobwright-app | merged | spec v4 · plan v4 | - |
 | 2 | jobwright-gitops | merged | spec v4 · plan v1 | - |
-| 3 | jobwright-app | waiting | - | - |
+| 3 | jobwright-app | aidlc-plan | spec v4 · plan v1 · contract jobwright-api v1 | - |
 | 4 | jobwright-gitops | waiting | - | - |
+| 5 | jobwright-app | waiting | - | - |
+| 6 | jobwright-app | waiting | - | - |
+| 7 | jobwright-app | waiting | - | - |
+| 8 | jobwright-app | waiting | - | - |
+| 9 | jobwright-app | waiting | - | - |
+| 10 | jobwright-app | waiting | - | - |
+| 11 | jobwright-app | waiting | - | - |
+| 12 | jobwright-app | waiting | - | - |
+| 13 | jobwright-gitops | waiting | - | - |
 
 Release: not ready

@@ -6,7 +6,7 @@ SOURCE     docs/requirements/2026-11-08-jobwright-requirements.md (v1.0, 2026-11
 KIND       new system
 ROUTE      G
 LEVEL      workspace root
-CURRENT    spec v4 · contract jobwright-api v1 · contract released-versions v2 · contract release-ledger v2
+CURRENT    spec v4 · contract jobwright-api v1 · contract released-versions v2.1 · contract release-ledger v2
 ```
 
 Scope: the new system and increment 1, Foundations (requirements section 4; product owner's answer I1 in
@@ -38,8 +38,9 @@ Each step's pull request merges before the next starts.
 | aidlc-onboard (prepare) | jobwright-gitops | done (2026-11-09, merged to main as 9e91986) |
 | aidlc-design (amendment 3: part 2's root changes C1, C2, C3, C5, C6, decided by Prashant Sharma 2026-11-13; ADR 0015, `new-system.md` v8, coordination plan v4, `design-amendment-3.md`) | workspace root | done (approved by Prashant Sharma, 2026-11-13, recorded at his instruction) |
 | slice 0 | jobwright-gitops | done (merged by Prashant Sharma through pull request #1, merge commit c7e4ef1, 2026-11-13; plan v1; U9 1,746,025,841 bytes idle, ports 6550, 8443 and 8080 on 127.0.0.1; merged before aidlc-review, which ran after the merge, pull request #2, 8895d3d; see jobwright-gitops plans/NEW-jobwright/part-2/README.md) |
-| part 2 follow-up: the review's findings (2 high, 10 medium, 12 low, 10 questions, all deferred; security gate not given) | jobwright-gitops | to do: H2 decided 2026-11-13 (the sandbox stays off, risk accepted by Prashant Sharma); M1, M2, M3 and the security gate before part 3's release job holds STAGING_TOKEN |
+| part 2 follow-up: the review's findings (2 high, 10 medium, 12 low, 10 questions, all deferred; security gate not given) | jobwright-gitops | to do: H2 decided 2026-11-13 (the sandbox stays off, risk accepted by Prashant Sharma); M1, M2, M3 and the security gate before part 3's release job holds STAGING_TOKEN (part 12's, coordination plan v5). Running as jobwright-gitops's own story NEW-slice0-review-fixes: design "none needed" 2026-11-13, plan v1 drafted |
 | aidlc-onboard (confirm) | jobwright-gitops | done (merged by Prashant Sharma through pull request #3, merge commit 23f04b5, 2026-11-13; every AGENTS.md command confirmed, docs/codebase-map.md written, coverage of checks/ 87%) |
+| aidlc-design (amendment 4: jobwright-app part 3's root-proposal.md: parts 3 and 5 to 12 in jobwright-app, part 4 split with part 13, YamlReader and Mailpit for tests, gates by project, AC25's job, the 429 route, Released versions v2.1, STAGING_TOKEN held back; `new-system.md` v9, coordination plan v5, `design-amendment-4.md`) | workspace root | done (drafted 2026-11-13 and challenged, 12 objections answered in the note; approved by Prashant Sharma, 2026-11-14, recorded at his instruction) |
 | aidlc-release | workspace root | to do |
 | aidlc-operate (on an alert) | workspace root | on event |
 | aidlc-feedback (on repeated findings) | workspace root | on event |

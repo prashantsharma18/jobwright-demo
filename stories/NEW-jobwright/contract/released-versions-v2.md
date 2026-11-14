@@ -45,6 +45,11 @@ and commits it to `main` with the message `staging: <revision>`. It changes no o
 run visibly, when the file already holds a higher `runNumber` (never backwards). A push rejected because `main` moved is
 rebased and retried once.
 
+**v2.1 (approved by Prashant Sharma 2026-11-14, design amendment 4, D6; additive, minor):** when `environments/staging/values.yaml` does not exist,
+the run creates it, as if it held `runNumber: 0`, with the same content and message. It still writes no other file.
+Nothing in v2 changes; this fills a case v2 did not state, the first release (FACT: `environments/` does not exist on
+`jobwright-gitops` `main`, 2026-11-13).
+
 ## What the consumer may rely on
 - Environments name digests, never tags; the three digests in a staging commit share one revision.
 - `runNumber` in staging never decreases.
@@ -57,3 +62,6 @@ rebased and retried once.
 - Provider, `jobwright-app` (the staging commit): [tests/released-versions/test_staging_commit.py](tests/released-versions/test_staging_commit.py)
 - Consumer, `jobwright-gitops`: its existing render and values checks run on every staging commit (the values check
   refuses a tag, a mixed revision or a lower run number)
+- (v2.1) Provider: `test_released_versions_v2_1_an_absent_file_is_created_as_run_zero` in the staging-commit tests.
+  Consumer: the values check accepts a first staging file with no previous one (part 4 adds the test before part 12
+  runs; drafted there, as the consumer owns it)

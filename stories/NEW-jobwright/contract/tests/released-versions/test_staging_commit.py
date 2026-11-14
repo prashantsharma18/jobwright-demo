@@ -51,6 +51,15 @@ class StagingCommitTests(unittest.TestCase):
 
         self.assertEqual("environments/staging/values.yaml", result.path)
 
+    def test_released_versions_v2_1_an_absent_file_is_created_as_run_zero(self):
+        # v2.1 (design amendment 4, D6): the first release finds no staging file; `current` is None when it is absent.
+        result = next_staging(None, revision=NEW, run_number=1, digests=DIGESTS, owner="prashantsharma18")
+
+        self.assertEqual("environments/staging/values.yaml", result.path)
+        self.assertEqual(NEW, result.values["revision"])
+        self.assertEqual(1, result.values["runNumber"])
+        self.assertEqual(f"staging: {NEW}", result.message)
+
 
 if __name__ == "__main__":
     unittest.main()
