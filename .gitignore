@@ -1,3 +1,6 @@
 # Each repository keeps its own history (WORKSPACE.md lists them); the workspace does not track them.
 /jobwright-app/
 /jobwright-gitops/
+# Lanes keep their git worktrees here (aidlc parallel-lanes); Python's caches are never tracked.
+.worktrees/
+__pycache__/

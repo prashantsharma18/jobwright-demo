@@ -5,12 +5,12 @@
       "Edit(/stories/**)",
       "Edit(/incidents/**)",
       "Edit(/feedback/**)",
+      "Edit(/jobwright-app/.worktrees/**)",
+      "Edit(/jobwright-gitops/.worktrees/**)",
       "Read(~/.claude/plugins/cache/aidlc/**)",
       "Read(~/.claude/plugins/marketplaces/aidlc/**)"
     ],
     "deny": [
-      "Edit(/jobwright-app/**)",
-      "Edit(/jobwright-gitops/**)",
       "Read(.env)",
       "Read(.env.*)",
       "Read(**/.env)",
